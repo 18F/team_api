@@ -1,0 +1,58 @@
+- collection: team
+  title: Team
+  description: Team member info, indexed by username
+  item_id: name
+  sort_by: last_name
+  item_collections:
+  - projects
+  - working-groups
+  - guilds
+
+- collection: locations
+  title: Locations
+  description: Index of team members by location code
+  item_id: code
+  sort_by: label
+  item_collections:
+  - team
+  - projects
+  - working-groups
+  - guilds
+
+- collection: projects
+  title: Projects
+  description: Project info, indexed by short project name
+  item_id: name
+  sort_by: full_name
+  item_collections:
+  - team
+
+- collection: departments
+  title: Departments
+  description: Department info, indexed by department name
+  item_id: name
+  sort_by: name
+  item_collections:
+  - team
+
+- collection: working-groups
+  title: Working Groups
+  description: Working Groups info, indexed by name
+  item_id: name
+  sort_by: full_name
+  item_collections:
+  - field: leads
+    collection: team
+  - field: members
+    collection: team
+
+- collection: guilds
+  title: Guilds
+  description: Guilds info, indexed by name
+  item_id: name
+  sort_by: full_name
+  item_collections:
+  - field: leads
+    collection: team
+  - field: members
+    collection: team

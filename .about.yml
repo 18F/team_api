@@ -1,0 +1,25 @@
+---
+name: team_api
+full_name: Team API gem
+type: app
+owner_type: project
+status: active
+stage: discovery
+testable: true
+description: >
+  A gem for compiling information about team members, projects, etc. and
+  exposing it via a JSON API.
+stack:
+- Jekyll
+- Ruby
+licenses:
+  team_api:
+    name: CC0
+    url: https://github.com/18F/team_api/blob/master/LICENSE.md
+tasks: https://github.com/18F/team_api/issues
+contact:
+- mailto:michael.bland@gsa.gov
+team:
+- github: mbland
+  role: lead
+- github: arowla

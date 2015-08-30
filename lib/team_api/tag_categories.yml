@@ -1,0 +1,9 @@
+- category: skills
+  title: Skills
+  description: Index of team members by technical skills
+  source: team
+
+- category: interests
+  title: Interests
+  description: Index of team members by general interests
+  source: team
