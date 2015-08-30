@@ -1,9 +1,9 @@
-# 18F Team API
+# `team_api` gem
 
 Compiles information about team members, projects, etc. and exposes it via a
 JSON API.
 
-Targeted consumers of this API include:
+The public-facing version of the API is [https://team-api.18f.gov/public/api/](https://team-api.18f.gov/public/api/). Targeted consumers of this API include:
 
 - [18F Hub](https://github.com/18F/hub)
 - [18F Dashboard](https://github.com/18F/dashboard)
