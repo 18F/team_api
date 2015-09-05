@@ -46,9 +46,10 @@ module TeamApi
 
     def test_join_raises_if_identifier_unknown
       impl = JoinerImpl.new @site
-      assert_raises(UnknownTeamMemberReferenceError) do
+      error = assert_raises(UnknownTeamMemberReferenceError) do
         impl.join_team_list(%w(mbland alison@18f.gov jmcarp foobar))
       end
+      assert_equal 'foobar', error.message
     end
 
     def test_join_ignores_unknown_identifiers_in_public_mode
