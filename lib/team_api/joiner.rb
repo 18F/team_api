@@ -110,7 +110,7 @@ module TeamApi
       (team_list || []).map! do |reference|
         member = team_member_from_reference reference
         if member.nil?
-          fail UnknownTeamMemberReferenceError, member unless public_mode
+          fail UnknownTeamMemberReferenceError, reference unless public_mode
         else
           member['name']
         end
