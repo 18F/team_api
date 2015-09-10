@@ -3,6 +3,8 @@
 require_relative 'config'
 require_relative 'cross_referencer'
 
+require 'lambda_map_reduce'
+
 module TeamApi
   # Contains utility functions for canonicalizing names and the order of data.
   class Canonicalizer
@@ -108,7 +110,7 @@ module TeamApi
     # different strings for the same thing.
     def self.canonicalize_tag_category(tags_xrefs)
       return if tags_xrefs.nil? || tags_xrefs.empty?
-      tags_xrefs.replace(CrossReferencer.map_reduce(tags_xrefs.values,
+      tags_xrefs.replace(LambdaMapReduce.map_reduce(tags_xrefs.values,
         ->(xref) { [[xref['slug'], xref]] }, method(:consolidate_xrefs)).to_h)
     end
 

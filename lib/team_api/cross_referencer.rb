@@ -3,6 +3,8 @@
 require_relative 'api'
 require_relative 'canonicalizer'
 
+require 'lambda_map_reduce'
+
 module TeamApi
   # Signals that a cross-reference ID value in one object is not present in
   # the target collection. Only raised in "private" mode, since "public" mode
@@ -148,23 +150,14 @@ module TeamApi
     end
 
     def self.create_tag_xrefs(site, items, category, xref_data)
-      map_items_to_tags = lambda do |item|
+      items_to_tags = lambda do |item|
         item_xref = xref_data.item_to_xref item
         item[category].map { |tag| [tag, item_xref] } unless item[category].nil?
       end
       create_tag_xrefs = lambda do |tag, item_xrefs|
         [tag, tag_xref(site, category, tag, item_xrefs)]
       end
-      map_reduce(items, map_items_to_tags, create_tag_xrefs).to_h
-    end
-
-    # Returns an Array of objects after mapping and reducing items.
-    # mapper takes a single item and returns an Array of [key, value] pairs.
-    # reducer takes a [key, Array of values] pair and returns a single item.
-    def self.map_reduce(items, mapper, reducer)
-      items.flat_map { |item| mapper.call(item) }.compact
-        .each_with_object({}) { |kv, shuffle| (shuffle[kv[0]] ||= []) << kv[1] }
-        .map { |key, values| reducer.call(key, values) }.compact
+      LambdaMapReduce.map_reduce(items, items_to_tags, create_tag_xrefs).to_h
     end
 
     def self.tag_xref(site, category, tag, members)
