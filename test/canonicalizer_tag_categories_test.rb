@@ -62,6 +62,12 @@ module TeamApi
       }
     end
 
+    CANONICALIZED_XREFS = %w(C++ Ruby).map do |skill|
+      slug = skill.downcase
+      self_url = "https://team-api.18f.gov/api/skills/#{slug}"
+      [slug, { 'name' => skill, 'slug' => slug, 'self' => self_url }]
+    end.to_h
+
     def test_single_skill
       site.data['skills'] = c_plus_plus
       Canonicalizer.canonicalize_tag_category site.data['skills']
@@ -73,6 +79,45 @@ module TeamApi
       site.data['skills'] = ruby_uppercase.merge(ruby_lowercase)
       Canonicalizer.canonicalize_tag_category site.data['skills']
       assert_equal ruby_consolidated, site.data['skills']
+    end
+
+    def all_consolidated
+      c_plus_plus.merge(ruby_uppercase).merge(ruby_lowercase)
+    end
+
+    def expected_consolidated
+      ruby_consolidated.merge('c++' => c_plus_plus['C++'])
+    end
+
+    def test_multiple_skills
+      site.data['skills'] = all_consolidated
+      Canonicalizer.canonicalize_tag_category site.data['skills']
+      assert_equal expected_consolidated, site.data['skills']
+    end
+
+    SELF_URL = 'https://team-api.18f.gov/api/skills/'
+    TEAM_MEMBER = {
+      'skills' => [
+        { 'name' => 'ruby', 'slug' => 'ruby', 'self' => SELF_URL + 'ruby' },
+        { 'name' => 'C++', 'slug' => 'c++', 'self' => SELF_URL + 'c++' },
+      ],
+    }
+
+    def test_canonicalize_tag_xrefs_empty_input
+      empty_member = {}
+      Canonicalizer.canonicalize_tags_for_item(
+        'skills', expected_consolidated, empty_member)
+      assert_nil empty_member['skills']
+    end
+
+    def test_canonicalize_tag_xrefs
+      expected = [
+        { 'name' => 'C++', 'slug' => 'c++', 'self' => SELF_URL + 'c++' },
+        { 'name' => 'Ruby', 'slug' => 'ruby', 'self' => SELF_URL + 'ruby' },
+      ]
+      Canonicalizer.canonicalize_tags_for_item(
+        'skills', expected_consolidated, TEAM_MEMBER)
+      assert_equal expected, TEAM_MEMBER['skills']
     end
   end
 end

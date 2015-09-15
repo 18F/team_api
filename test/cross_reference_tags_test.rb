@@ -42,7 +42,7 @@ module TeamApi
       refute site.data['skills']
     end
 
-    def self.skill_ref(skill, members)
+    def self.skill_data(skill, members)
       slug = Canonicalizer.canonicalize(skill)
       { 'name' => skill,
         'slug' => slug,
@@ -58,12 +58,20 @@ module TeamApi
       'Ruby' => %w(afeld arowla mbland),
       'Node' => %w(arowla mbland),
       'JavaScript' => %w(afeld),
-    }.map { |skill, members| [skill, skill_ref(skill, members)] }.to_h
+    }.map { |skill, members| [skill, skill_data(skill, members)] }.to_h
+
+    SKILL_XREF_FIELDS = CrossReferencer::TAG_XREF_FIELDS
+
+    def member_skills(name)
+      SKILLS.select { |_, d| d['members'].detect { |m| m['name'] == name } }
+        .map { |_, xref| xref.select { |key| SKILL_XREF_FIELDS.include? key } }
+    end
 
     def test_team_skills
       site.data['team'] = TEAM
       CrossReferencer.xref_tags_and_team_members site, ['skills'], xref
       assert_equal SKILLS, site.data['skills']
+      assert_equal member_skills('mbland'), TEAM['mbland']['skills']
     end
   end
 end
