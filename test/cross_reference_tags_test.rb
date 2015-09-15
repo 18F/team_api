@@ -20,6 +20,26 @@ module TeamApi
         'skills' => %w(Ruby JavaScript) },
     }
 
+    def self.skill_data(skill, members)
+      slug = Canonicalizer.canonicalize(skill)
+      { 'name' => skill,
+        'slug' => slug,
+        'self' => File.join('https://team-api.18f.gov/api/skills', slug),
+        'members' => Canonicalizer.team_xrefs(TEAM, members),
+      }
+    end
+
+    SKILLS = {
+      'C++' => %w(mbland),
+      'Python' => %w(arowla mbland),
+      'Go' => %w(mbland),
+      'Ruby' => %w(afeld arowla mbland),
+      'Node' => %w(arowla mbland),
+      'JavaScript' => %w(afeld),
+    }.map { |skill, members| [skill, skill_data(skill, members)] }.to_h
+
+    SKILL_XREF_FIELDS = CrossReferencer::TAG_XREF_FIELDS
+
     def setup
       @site = DummyTestSite.new config: { 'baseurl' => '/' }
       @xref = CrossReferenceData.new site, 'team', %w(name full_name)
@@ -42,28 +62,16 @@ module TeamApi
       refute site.data['skills']
     end
 
-    def self.skill_ref(skill, members)
-      slug = Canonicalizer.canonicalize(skill)
-      { 'name' => skill,
-        'slug' => slug,
-        'self' => File.join('https://team-api.18f.gov/api/skills', slug),
-        'members' => Canonicalizer.team_xrefs(TEAM, members),
-      }
+    def member_skills(name)
+      SKILLS.select { |_, d| d['members'].detect { |m| m['name'] == name } }
+        .map { |_, xref| xref.select { |key| SKILL_XREF_FIELDS.include? key } }
     end
-
-    SKILLS = {
-      'C++' => %w(mbland),
-      'Python' => %w(arowla mbland),
-      'Go' => %w(mbland),
-      'Ruby' => %w(afeld arowla mbland),
-      'Node' => %w(arowla mbland),
-      'JavaScript' => %w(afeld),
-    }.map { |skill, members| [skill, skill_ref(skill, members)] }.to_h
 
     def test_team_skills
       site.data['team'] = TEAM
       CrossReferencer.xref_tags_and_team_members site, ['skills'], xref
       assert_equal SKILLS, site.data['skills']
+      assert_equal member_skills('mbland'), TEAM['mbland']['skills']
     end
   end
 end

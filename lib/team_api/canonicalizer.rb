@@ -9,8 +9,13 @@ module TeamApi
     # Canonicalizes the order and names of certain fields within site_data.
     def self.canonicalize_data(site_data)
       sort_collections site_data
-      canonicalize_tag_category site_data['skills']
-      canonicalize_tag_category site_data['interests']
+      %w(skills interests).each do |category|
+        xrefs = site_data[category]
+        canonicalize_tag_category xrefs
+        site_data['team'].values.each do |member|
+          canonicalize_tags_for_item category, xrefs, member
+        end
+      end
     end
 
     def self.sort_collections(site_data)
@@ -121,5 +126,11 @@ module TeamApi
       [slug, result]
     end
     private_class_method :consolidate_xrefs
+
+    def self.canonicalize_tags_for_item(category, xrefs, item)
+      return if item[category].nil?
+      item[category].each { |tag| tag['name'] = xrefs[tag['slug']]['name'] }
+        .sort_by! { |tag| tag['name'] }
+    end
   end
 end

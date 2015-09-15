@@ -114,6 +114,7 @@ module TeamApi
     WORKING_GROUP_FIELDS = %w(name full_name self)
     GUILD_FIELDS = %w(name full_name self)
     TAG_CATEGORIES = %w(skills interests)
+    TAG_XREF_FIELDS = %w(name slug self)
 
     # Build cross-references between data sets.
     # +site_data+:: Jekyll +site.data+ object
@@ -140,10 +141,20 @@ module TeamApi
     private_class_method :create_xref_data
 
     def self.xref_tags_and_team_members(site, tag_categories, team_xref)
+      team = (site.data['team'] || {})
       tag_categories.each do |category|
-        xrefs = create_tag_xrefs(site, (site.data['team'] || {}).values,
-          category, team_xref)
-        site.data[category] = xrefs unless xrefs.empty?
+        xrefs = create_tag_xrefs(site, team.values, category, team_xref)
+        next if xrefs.empty?
+        site.data[category] = xrefs
+        replace_item_tags_with_xrefs category, xrefs, team.values
+      end
+    end
+
+    def self.replace_item_tags_with_xrefs(tag_category, tag_xrefs, items)
+      items.each do |item|
+        (item[tag_category] || []).map! do |tag|
+          tag_xrefs[tag].select { |field| TAG_XREF_FIELDS.include? field }
+        end
       end
     end
 
