@@ -12,8 +12,9 @@ module TeamApi
       %w(skills interests).each do |category|
         xrefs = site_data[category]
         canonicalize_tag_category xrefs
-        team_members = site_data['team'].values
-        team_members.each { |i| canonicalize_tags_for_item category, xrefs, i }
+        site_data['team'].values.each do |member|
+          canonicalize_tags_for_item category, xrefs, member
+        end
       end
     end
 
@@ -127,8 +128,9 @@ module TeamApi
     private_class_method :consolidate_xrefs
 
     def self.canonicalize_tags_for_item(category, xrefs, item)
-      (item[category] || []).each { |t| t['name'] = xrefs[t['slug']]['name'] }
-        .sort_by! { |xref| xref['name'] }
+      return if item[category].nil?
+      item[category].each { |tag| tag['name'] = xrefs[tag['slug']]['name'] }
+        .sort_by! { |tag| tag['name'] }
     end
   end
 end

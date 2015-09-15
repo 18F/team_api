@@ -5,24 +5,7 @@ require_relative './site'
 require 'minitest/autorun'
 
 module TeamApi
-  class CanonicalizeTagCategoryTest < ::Minitest::Test
-    attr_accessor :site
-
-    def setup
-      @site = DummyTestSite.new
-    end
-
-    def test_empty_team
-      Canonicalizer.canonicalize_tag_category site.data['skills']
-      refute site.data['skills']
-    end
-
-    def test_empty_skills
-      site.data['skills'] = {}
-      Canonicalizer.canonicalize_tag_category site.data['skills']
-      assert_empty site.data['skills']
-    end
-
+  class CanonicalizeTagTestData
     def c_plus_plus
       { 'C++' =>
         { 'name' => 'C++', 'slug' => 'c++',
@@ -50,6 +33,10 @@ module TeamApi
       }
     end
 
+    def all_ruby
+      ruby_uppercase.merge ruby_lowercase
+    end
+
     def ruby_consolidated
       { 'ruby' =>
           { 'name' => 'Ruby', 'slug' => 'ruby',
@@ -62,38 +49,57 @@ module TeamApi
       }
     end
 
-    CANONICALIZED_XREFS = %w(C++ Ruby).map do |skill|
-      slug = skill.downcase
-      self_url = "https://team-api.18f.gov/api/skills/#{slug}"
-      [slug, { 'name' => skill, 'slug' => slug, 'self' => self_url }]
-    end.to_h
+    def all_skills
+      c_plus_plus.merge(ruby_uppercase).merge(ruby_lowercase)
+    end
+
+    def consolidated_skills
+      ruby_consolidated.merge('c++' => c_plus_plus['C++'])
+    end
+  end
+
+  class CanonicalizeTagCategoryTest < ::Minitest::Test
+    attr_accessor :site, :tag_test_data
+
+    def setup
+      @site = DummyTestSite.new
+      @tag_test_data = CanonicalizeTagTestData.new
+    end
+
+    def test_empty_team
+      Canonicalizer.canonicalize_tag_category site.data['skills']
+      refute site.data['skills']
+    end
+
+    def test_empty_skills
+      site.data['skills'] = {}
+      Canonicalizer.canonicalize_tag_category site.data['skills']
+      assert_empty site.data['skills']
+    end
 
     def test_single_skill
-      site.data['skills'] = c_plus_plus
+      cpp_data = tag_test_data.c_plus_plus
+      site.data['skills'] = cpp_data
+      expected = { 'c++' => cpp_data['C++'] }
       Canonicalizer.canonicalize_tag_category site.data['skills']
-      expected = { 'c++' => c_plus_plus['C++'] }
       assert_equal expected, site.data['skills']
     end
 
     def test_single_skill_multiple_names
-      site.data['skills'] = ruby_uppercase.merge(ruby_lowercase)
+      site.data['skills'] = tag_test_data.all_ruby
       Canonicalizer.canonicalize_tag_category site.data['skills']
-      assert_equal ruby_consolidated, site.data['skills']
-    end
-
-    def all_consolidated
-      c_plus_plus.merge(ruby_uppercase).merge(ruby_lowercase)
-    end
-
-    def expected_consolidated
-      ruby_consolidated.merge('c++' => c_plus_plus['C++'])
+      assert_equal tag_test_data.ruby_consolidated, site.data['skills']
     end
 
     def test_multiple_skills
-      site.data['skills'] = all_consolidated
+      site.data['skills'] = tag_test_data.all_skills
       Canonicalizer.canonicalize_tag_category site.data['skills']
-      assert_equal expected_consolidated, site.data['skills']
+      assert_equal tag_test_data.consolidated_skills, site.data['skills']
     end
+  end
+
+  class CanonicalizeTagsForItemTest < ::Minitest::Test
+    attr_accessor :site, :tag_test_data
 
     SELF_URL = 'https://team-api.18f.gov/api/skills/'
     TEAM_MEMBER = {
@@ -103,10 +109,15 @@ module TeamApi
       ],
     }
 
+    def setup
+      @site = DummyTestSite.new
+      @tag_test_data = CanonicalizeTagTestData.new
+    end
+
     def test_canonicalize_tag_xrefs_empty_input
       empty_member = {}
       Canonicalizer.canonicalize_tags_for_item(
-        'skills', expected_consolidated, empty_member)
+        'skills', tag_test_data.consolidated_skills, empty_member)
       assert_nil empty_member['skills']
     end
 
@@ -116,7 +127,7 @@ module TeamApi
         { 'name' => 'Ruby', 'slug' => 'ruby', 'self' => SELF_URL + 'ruby' },
       ]
       Canonicalizer.canonicalize_tags_for_item(
-        'skills', expected_consolidated, TEAM_MEMBER)
+        'skills', tag_test_data.consolidated_skills, TEAM_MEMBER)
       assert_equal expected, TEAM_MEMBER['skills']
     end
   end
