@@ -110,8 +110,10 @@ module TeamApi
     # different strings for the same thing.
     def self.canonicalize_tag_category(tags_xrefs)
       return if tags_xrefs.nil? || tags_xrefs.empty?
-      tags_xrefs.replace(LambdaMapReduce.map_reduce(tags_xrefs.values,
-        ->(xref) { [[xref['slug'], xref]] }, method(:consolidate_xrefs)).to_h)
+      tags_xrefs.replace(LambdaMapReduce.map_reduce(
+        tags_xrefs.values,
+        ->(xref) { [[xref['slug'], xref]] },
+        method(:consolidate_xrefs)).to_h)
     end
 
     def self.consolidate_xrefs(slug, xrefs)
