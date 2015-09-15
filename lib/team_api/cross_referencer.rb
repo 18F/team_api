@@ -149,6 +149,39 @@ module TeamApi
       end
     end
 
+    # Generates a Hash of { tag => cross-reference } generated from the tag
+    # `category` Arrays from each element of `items`.
+    #
+    # For example:
+    #   TEAM = {
+    #   'mbland' => {
+    #     'name' => 'mbland', 'full_name' => 'Mike Bland',
+    #     'skills' => ['C++', 'Python'] },
+    #   'arowla' => {
+    #     'name' => 'arowla', 'full_name' => 'Alison Rowland',
+    #     'skills' => ['Python'] },
+    #   }
+    #   TEAM_XREF = CrossReferenceData.new site, 'team', ['name', 'full_name']
+    #   create_tag_xrefs site, TEAM, 'skills', TEAM_XREF
+    #
+    # will produce:
+    #   {'C++' => {
+    #      'name' => 'C++',
+    #      'slug' => 'c++',
+    #      'self' => 'https://.../skills/c++',
+    #      'members' => [{ 'name' => 'mbland', 'full_name' => 'Mike Bland' }],
+    #    },
+    #
+    #    'Python' => {
+    #      'name' => 'Python',
+    #      'slug' => 'python',
+    #      'self' => 'https://.../skills/python',
+    #      'members' => [
+    #        { 'name' => 'mbland', 'full_name' => 'Mike Bland' },
+    #        { 'name' => 'arowla', 'full_name' => 'Alison Rowland' },
+    #      ],
+    #    },
+    #  }
     def self.create_tag_xrefs(site, items, category, xref_data)
       items_to_tags = lambda do |item|
         item_xref = xref_data.item_to_xref item
