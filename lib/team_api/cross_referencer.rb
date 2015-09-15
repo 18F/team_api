@@ -110,7 +110,7 @@ module TeamApi
   # Builds cross-references between data sets.
   class CrossReferencer
     TEAM_FIELDS = %w(name last_name first_name full_name self)
-    PROJECT_FIELDS = %w(name project self)
+    PROJECT_FIELDS = %w(name full_name self)
     WORKING_GROUP_FIELDS = %w(name full_name self)
     GUILD_FIELDS = %w(name full_name self)
     TAG_CATEGORIES = %w(skills interests)
