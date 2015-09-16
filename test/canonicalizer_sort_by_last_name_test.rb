@@ -6,13 +6,13 @@ require 'minitest/autorun'
 module TeamApi
   class SortByLastNameTest < ::Minitest::Test
     def test_sort_empty_team
-      assert_empty Canonicalizer.sort_by_last_name []
+      assert_empty NameCanonicalizer.sort_by_last_name []
     end
 
     def test_sort_single_entry_without_last_name
       team = [{ 'name' => 'mbland', 'full_name' => 'Mike Bland' }]
       assert_equal([{ 'name' => 'mbland', 'full_name' => 'Mike Bland' }],
-        Canonicalizer.sort_by_last_name(team))
+        NameCanonicalizer.sort_by_last_name(team))
     end
 
     def test_sort_single_entry_without_full_name
@@ -22,7 +22,7 @@ module TeamApi
       expected = [
         { 'name' => 'mbland', 'first_name' => 'Mike', 'last_name' => 'Bland' },
       ]
-      assert_equal expected, Canonicalizer.sort_by_last_name(team)
+      assert_equal expected, NameCanonicalizer.sort_by_last_name(team)
     end
 
     # rubocop:disable MethodLength
@@ -52,7 +52,7 @@ module TeamApi
         { 'name' => 'mhz',
           'first_name' => 'Michelle', 'last_name' => 'Hertzfeld' },
       ]
-      assert_equal expected, Canonicalizer.sort_by_last_name(team)
+      assert_equal expected, NameCanonicalizer.sort_by_last_name(team)
     end
     # rubocop:enable MethodLength
   end

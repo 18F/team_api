@@ -8,7 +8,7 @@ module TeamApi
   class CanonicalizerSortCollectionsTest < ::Minitest::Test
     def test_empty_collections
       site = DummyTestSite.new
-      Canonicalizer.sort_collections site.data
+      CollectionCanonicalizer.sort_collections site.data
     end
 
     def mbland
@@ -89,7 +89,7 @@ module TeamApi
 
     def test_sort_team
       site.data['team'] = team
-      Canonicalizer.sort_collections site.data
+      CollectionCanonicalizer.sort_collections site.data
       assert_equal %w(mbland nick arowla), site.data['team'].keys
       assert_group_names_for_team_member(%w(doc testing wg),
         'mbland', 'working-groups')
@@ -99,7 +99,7 @@ module TeamApi
 
     def test_sort_working_groups
       site.data['working-groups'] = working_groups
-      Canonicalizer.sort_collections site.data
+      CollectionCanonicalizer.sort_collections site.data
       assert_equal(%w(documentation testing working-group),
         site.data['working-groups'].keys)
       assert_member_names_for_group(%w(mbland arowla),
