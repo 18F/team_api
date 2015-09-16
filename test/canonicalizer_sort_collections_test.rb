@@ -12,7 +12,7 @@ module TeamApi
     end
 
     def mbland
-      { 'name' => 'mbland', 'first_name' => 'Mike', 'last_name' => 'Bland',
+      { 'username' => 'mbland', 'first_name' => 'Mike', 'last_name' => 'Bland',
         'working-groups' => [
           { 'name' => 'wg', 'full_name' => 'Working Group' },
           { 'name' => 'doc', 'full_name' => 'Documentation' },
@@ -22,14 +22,14 @@ module TeamApi
     end
 
     def nick
-      { 'name' => 'nick', 'first_name' => 'Nick', 'last_name' => 'Bristow',
+      { 'username' => 'nick', 'first_name' => 'Nick', 'last_name' => 'Bristow',
         'working-groups' => [{ 'name' => 'wg' }],
         'guilds' => [{ 'name' => 'accessibility' }]
       }
     end
 
     def arowla
-      { 'name' => 'arowla', 'first_name' => 'Alison', 'last_name' => 'Rowland',
+      { 'username' => 'arowla', 'first_name' => 'Alison', 'last_name' => 'Rowland',
         'working-groups' => [{ 'name' => 'testing' }],
         'projects' => [
           { 'name' => 'openfec', 'full_name' => 'OpenFEC' },
@@ -40,7 +40,7 @@ module TeamApi
     end
 
     def team_member_xref(member)
-      member.select { |k, _| %w(name first_name last_name).include? k }
+      member.select { |k, _| %w(username first_name last_name).include? k }
     end
 
     def doc_wg
@@ -84,7 +84,7 @@ module TeamApi
     def assert_member_names_for_group(expected, group_collection, group_name,
       member_field)
       members = site.data[group_collection][group_name][member_field]
-      assert_equal expected, members.map { |member| member['name'] }
+      assert_equal expected, members.map { |member| member['username'] }
     end
 
     def test_sort_team

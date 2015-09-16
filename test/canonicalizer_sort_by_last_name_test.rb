@@ -10,17 +10,17 @@ module TeamApi
     end
 
     def test_sort_single_entry_without_last_name
-      team = [{ 'name' => 'mbland', 'full_name' => 'Mike Bland' }]
-      assert_equal([{ 'name' => 'mbland', 'full_name' => 'Mike Bland' }],
+      team = [{ 'username' => 'mbland', 'full_name' => 'Mike Bland' }]
+      assert_equal([{ 'username' => 'mbland', 'full_name' => 'Mike Bland' }],
         NameCanonicalizer.sort_by_last_name(team))
     end
 
     def test_sort_single_entry_without_full_name
       team = [
-        { 'name' => 'mbland', 'first_name' => 'Mike', 'last_name' => 'Bland' },
+        { 'username' => 'mbland', 'first_name' => 'Mike', 'last_name' => 'Bland' },
       ]
       expected = [
-        { 'name' => 'mbland', 'first_name' => 'Mike', 'last_name' => 'Bland' },
+        { 'username' => 'mbland', 'first_name' => 'Mike', 'last_name' => 'Bland' },
       ]
       assert_equal expected, NameCanonicalizer.sort_by_last_name(team)
     end
@@ -28,28 +28,28 @@ module TeamApi
     # rubocop:disable MethodLength
     def test_sort_mixed_entries
       team = [
-        { 'name' => 'adelevie',
+        { 'username' => 'adelevie',
           'first_name' => 'Alan', 'last_name' => 'deLevie' },
-        { 'name' => 'afeld',
+        { 'username' => 'afeld',
           'first_name' => 'Aidan', 'last_name' => 'Feldman' },
-        { 'name' => 'annalee', 'full_name' => 'Annalee Flower Horne',
+        { 'username' => 'annalee', 'full_name' => 'Annalee Flower Horne',
           'first_name' => 'Annalee', 'last_name' => 'Flower Horne' },
-        { 'name' => 'mbland',
+        { 'username' => 'mbland',
           'full_name' => 'Mike Bland' },
-        { 'name' => 'mhz',
+        { 'username' => 'mhz',
           'first_name' => 'Michelle', 'last_name' => 'Hertzfeld' },
       ]
 
       expected = [
-        { 'name' => 'mbland',
+        { 'username' => 'mbland',
           'full_name' => 'Mike Bland' },
-        { 'name' => 'adelevie',
+        { 'username' => 'adelevie',
           'first_name' => 'Alan', 'last_name' => 'deLevie' },
-        { 'name' => 'afeld',
+        { 'username' => 'afeld',
           'first_name' => 'Aidan', 'last_name' => 'Feldman' },
-        { 'name' => 'annalee', 'full_name' => 'Annalee Flower Horne',
+        { 'username' => 'annalee', 'full_name' => 'Annalee Flower Horne',
           'first_name' => 'Annalee', 'last_name' => 'Flower Horne' },
-        { 'name' => 'mhz',
+        { 'username' => 'mhz',
           'first_name' => 'Michelle', 'last_name' => 'Hertzfeld' },
       ]
       assert_equal expected, NameCanonicalizer.sort_by_last_name(team)

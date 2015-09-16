@@ -112,8 +112,8 @@ module TeamApi
     def snippets_by_user
       @snippets_by_user ||= snippets
         .flat_map { |date, batch| batch.map { |snippet| [date, snippet] } }
-        .group_by { |_date, snippet| snippet['name'] }
-        .map { |name, mapping| [name, mapping.to_h] }
+        .group_by { |_date, snippet| snippet['username'] }
+        .map { |username, mapping| [username, mapping.to_h] }
         .to_h
     end
 

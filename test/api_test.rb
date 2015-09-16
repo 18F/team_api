@@ -23,7 +23,7 @@ module TeamApi
     end
 
     def test_envelop
-      mbland_data = { 'name' => 'mbland', 'full_name' => 'Mike Bland' }
+      mbland_data = { 'username' => 'mbland', 'full_name' => 'Mike Bland' }
       site.data['team'] = { 'mbland' => mbland_data }
       assert_equal(
         { 'self' => File.join(site.config['url'], Api::BASEURL, 'team'),
@@ -86,7 +86,7 @@ module TeamApi
 
     def test_generate_api_team
       site.data['team'] = {
-        'mbland' => { 'name' => 'mbland', 'full_name' => 'Mike Bland' },
+        'mbland' => { 'username' => 'mbland', 'full_name' => 'Mike Bland' },
       }
       Api.generate_api site
       assert_collection_and_element_endpoints_match site, 'team', ['mbland']
@@ -94,7 +94,7 @@ module TeamApi
 
     def test_generate_api_locations
       site.data['locations'] = {
-        'DCA' => { 'code' => 'DCA', 'members' => [{ 'name' => 'mbland' }] },
+        'DCA' => { 'code' => 'DCA', 'members' => [{ 'username' => 'mbland' }] },
       }
       Api.generate_api site
       assert_collection_and_element_endpoints_match site, 'locations', ['DCA']
@@ -102,7 +102,7 @@ module TeamApi
 
     def test_generate_api_projects
       site.data['projects'] = {
-        'hub' => { 'name' => 'hub', 'members' => [{ 'name' => 'mbland' }] },
+        'hub' => { 'name' => 'hub', 'members' => [{ 'username' => 'mbland' }] },
       }
       Api.generate_api site
       assert_collection_and_element_endpoints_match site, 'projects', ['hub']
@@ -111,7 +111,7 @@ module TeamApi
     def test_generate_api_departments
       site.data['departments'] = {
         'practices' => {
-          'name' => 'practices', 'members' => [{ 'name' => 'mbland' }]
+          'name' => 'practices', 'members' => [{ 'username' => 'mbland' }]
         },
       }
       Api.generate_api site
@@ -121,7 +121,7 @@ module TeamApi
 
     def test_generate_api_working_groups
       site.data['working-groups'] = {
-        'doc' => { 'name' => 'doc', 'members' => [{ 'name' => 'mbland' }] },
+        'doc' => { 'name' => 'doc', 'members' => [{ 'username' => 'mbland' }] },
       }
       Api.generate_api site
       assert_collection_and_element_endpoints_match(
@@ -132,7 +132,7 @@ module TeamApi
       site.data['guilds'] = {
         'accessibility' => {
           'name' => 'accessibility',
-          'members' => [{ 'name' => 'bristow' }],
+          'members' => [{ 'username' => 'bristow' }],
         },
       }
       Api.generate_api site
@@ -146,7 +146,7 @@ module TeamApi
           'name' => 'C++',
           'slug' => 'c++',
           'self' => File.join(site.config['url'], impl.baseurl, 'c++'),
-          'members' => [{ 'name' => 'mbland' }],
+          'members' => [{ 'username' => 'mbland' }],
         },
       }
       Api.generate_api site
@@ -161,7 +161,7 @@ module TeamApi
           'name' => 'Fender Stratocasters',
           'slug' => slug,
           'self' => File.join(site.config['url'], impl.baseurl, slug),
-          'members' => [{ 'name' => 'mbland' }],
+          'members' => [{ 'username' => 'mbland' }],
         },
       }
       Api.generate_api site
@@ -183,7 +183,7 @@ module TeamApi
     def test_add_self_link_to_collection_items
       site = DummyTestSite.new config: { 'baseurl' => '/public' }
       site.data['team'] = {
-        'mbland' => { 'name' => 'mbland', 'full_name' => 'Mike Bland' },
+        'mbland' => { 'username' => 'mbland', 'full_name' => 'Mike Bland' },
       }
       Api.add_self_links(site)
       assert_equal("#{Api.baseurl site}/team/mbland",
@@ -200,11 +200,11 @@ module TeamApi
       @site = DummyTestSite.new
 
       site.data['team'] = {
-        'mbland' => { 'name' => 'mbland', 'full_name' => 'Mike Bland' },
+        'mbland' => { 'username' => 'mbland', 'full_name' => 'Mike Bland' },
       }
       site.data['snippets'] = {
-        '20150629' => [{ 'name' => 'mbland', 'last-week' => 'did stuff' }],
-        '20150706' => [{ 'name' => 'mbland', 'last-week' => 'did moar stuff' }],
+        '20150629' => [{ 'username' => 'mbland', 'last-week' => 'did stuff' }],
+        '20150706' => [{ 'username' => 'mbland', 'last-week' => 'did moar stuff' }],
       }
 
       Api.generate_api site
@@ -223,7 +223,7 @@ module TeamApi
     end
 
     def user_snippet_from_batch(datestamp, username)
-      snippets[datestamp].detect { |snippet| snippet['name'] == username }
+      snippets[datestamp].detect { |snippet| snippet['username'] == username }
     end
 
     # rubocop:disable MethodLength
@@ -247,7 +247,7 @@ module TeamApi
       expected = {
         'latest' => '20150706',
         'all' => %w(20150706 20150629),
-        'users' => [{ 'name' => 'mbland', 'full_name' => 'Mike Bland' }],
+        'users' => [{ 'username' => 'mbland', 'full_name' => 'Mike Bland' }],
       }
       assert_equal expected, parse_page_content('/api/snippets/api.json')
     end

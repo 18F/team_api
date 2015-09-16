@@ -10,7 +10,7 @@ require 'lambda_map_reduce'
 module TeamApi
   # Builds cross-references between data sets.
   class CrossReferencer
-    TEAM_FIELDS = %w(name last_name first_name full_name self)
+    TEAM_FIELDS = %w(username last_name first_name full_name self)
     PROJECT_FIELDS = %w(name full_name self)
     WORKING_GROUP_FIELDS = %w(name full_name self)
     GUILD_FIELDS = %w(name full_name self)
@@ -45,7 +45,9 @@ module TeamApi
       team = (site.data['team'] || {})
       tag_categories.each do |category|
         xrefs = create_tag_xrefs(site, team.values, category, team_xref)
+
         next if xrefs.empty?
+
         site.data[category] = xrefs
         replace_item_tags_with_xrefs category, xrefs, team.values
       end
@@ -65,13 +67,13 @@ module TeamApi
     # For example:
     #   TEAM = {
     #   'mbland' => {
-    #     'name' => 'mbland', 'full_name' => 'Mike Bland',
+    #     'username' => 'mbland', 'full_name' => 'Mike Bland',
     #     'skills' => ['C++', 'Python'] },
     #   'arowla' => {
-    #     'name' => 'arowla', 'full_name' => 'Alison Rowland',
+    #     'username' => 'arowla', 'full_name' => 'Alison Rowland',
     #     'skills' => ['Python'] },
     #   }
-    #   TEAM_XREF = CrossReferenceData.new site, 'team', ['name', 'full_name']
+    #   TEAM_XREF = CrossReferenceData.new site, 'team', ['username', 'full_name']
     #   create_tag_xrefs site, TEAM, 'skills', TEAM_XREF
     #
     # will produce:
@@ -79,7 +81,7 @@ module TeamApi
     #      'name' => 'C++',
     #      'slug' => 'c++',
     #      'self' => 'https://.../skills/c++',
-    #      'members' => [{ 'name' => 'mbland', 'full_name' => 'Mike Bland' }],
+    #      'members' => [{ 'username' => 'mbland', 'full_name' => 'Mike Bland' }],
     #    },
     #
     #    'Python' => {
@@ -87,8 +89,8 @@ module TeamApi
     #      'slug' => 'python',
     #      'self' => 'https://.../skills/python',
     #      'members' => [
-    #        { 'name' => 'mbland', 'full_name' => 'Mike Bland' },
-    #        { 'name' => 'arowla', 'full_name' => 'Alison Rowland' },
+    #        { 'username' => 'mbland', 'full_name' => 'Mike Bland' },
+    #        { 'username' => 'arowla', 'full_name' => 'Alison Rowland' },
     #      ],
     #    },
     #  }
@@ -97,9 +99,11 @@ module TeamApi
         item_xref = xref_data.item_to_xref item
         item[category].map { |tag| [tag, item_xref] } unless item[category].nil?
       end
+
       create_tag_xrefs = lambda do |tag, item_xrefs|
         [tag, tag_xref(site, category, tag, item_xrefs)]
       end
+
       LambdaMapReduce.map_reduce(items, items_to_tags, create_tag_xrefs).to_h
     end
 
