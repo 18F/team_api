@@ -1,7 +1,8 @@
 # @author Mike Bland (michael.bland@gsa.gov)
 
-require_relative 'config'
+require_relative 'collection_canonicalizer'
 require_relative 'cross_referencer'
+require_relative 'name_canonicalizer'
 
 require 'lambda_map_reduce'
 
@@ -10,7 +11,7 @@ module TeamApi
   class Canonicalizer
     # Canonicalizes the order and names of certain fields within site_data.
     def self.canonicalize_data(site_data)
-      sort_collections site_data
+      CollectionCanonicalizer.sort_collections site_data
       %w(skills interests).each do |category|
         xrefs = site_data[category]
         canonicalize_tag_category xrefs
@@ -20,86 +21,19 @@ module TeamApi
       end
     end
 
-    def self.sort_collections(site_data)
-      Config.endpoint_config.each do |endpoint_info|
-        collection = endpoint_info['collection']
-        next unless site_data.member? collection
-        sorted = sort_collection_values(endpoint_info,
-          site_data[collection].values)
-        sort_item_xrefs endpoint_info, sorted
-        item_id_field = endpoint_info['item_id']
-        site_data[collection] = sorted.map { |i| [i[item_id_field], i] }.to_h
-      end
-    end
-
-    def self.sort_collection_values(endpoint_info, values)
-      sort_by_field = endpoint_info['sort_by']
-      if sort_by_field == 'last_name'
-        sort_by_last_name values
-      else
-        values.sort_by { |i| (i[sort_by_field] || '').downcase }
-      end
-    end
-    private_class_method :sort_collection_values
-
-    def self.sort_item_xrefs(endpoint_info, collection)
-      collection.each do |item|
-        sortable_item_fields(item, endpoint_info).each do |field, field_info|
-          item[field] = sort_collection_values field_info, item[field]
-        end
-      end
-    end
-    private_class_method :sort_item_xrefs
-
-    def self.sortable_item_fields(item, collection_endpoint_info)
-      collection_endpoint_info['item_collections'].map do |item_spec|
-        field, endpoint_info = parse_collection_spec item_spec
-        [field, endpoint_info] if item[field]
-      end.compact
-    end
-    private_class_method :sortable_item_fields
-
-    def self.parse_collection_spec(collection_spec)
-      if collection_spec.instance_of? Hash
-        [collection_spec['field'],
-         Config.endpoint_info_by_collection[collection_spec['collection']]]
-      else
-        [collection_spec, Config.endpoint_info_by_collection[collection_spec]]
-      end
-    end
-
     # Returns a canonicalized, URL-friendly substitute for an arbitrary string.
     # +s+:: string to canonicalize
     def self.canonicalize(s)
       s.downcase.gsub(/\s+/, '-')
     end
 
-    def self.comparable_name(person)
-      if person['last_name']
-        [person['last_name'].downcase, person['first_name'].downcase]
-      else
-        # Trim off title suffix, if any.
-        full_name = person['full_name'].downcase.split(',')[0]
-        last_name = full_name.split.last
-        [last_name, full_name]
-      end
-    end
-    private_class_method :comparable_name
-
-    # Sorts an array of team member data hashes based on the team members'
-    # last names.
-    # +team+:: An array of team member data hashes
-    def self.sort_by_last_name(team)
-      team.sort_by { |member| comparable_name member }
-    end
-
     def self.team_xrefs(team, usernames)
       fields = CrossReferencer::TEAM_FIELDS
-      usernames
+      result = usernames
         .map { |username| team[username] }
         .compact
         .map { |member| member.select { |field, _| fields.include? field } }
-        .sort_by { |member| comparable_name member }
+      NameCanonicalizer.sort_by_last_name result
     end
 
     # Breaks a YYYYMMDD timestamp into a hyphenated version: YYYY-MM-DD
@@ -126,7 +60,7 @@ module TeamApi
       result = xrefs.each_with_object(xrefs.shift) do |xref, consolidated|
         consolidated['members'].concat xref['members']
       end
-      result['members'].sort_by! { |member| comparable_name member }
+      NameCanonicalizer.sort_by_last_name! result['members']
       [slug, result]
     end
     private_class_method :consolidate_xrefs

@@ -3,6 +3,7 @@
 require_relative 'api'
 require_relative 'canonicalizer'
 require_relative 'cross_reference_data'
+require_relative 'name_canonicalizer'
 
 require 'lambda_map_reduce'
 
@@ -108,7 +109,7 @@ module TeamApi
       { 'name' => tag,
         'slug' => tag_slug,
         'self' => File.join(Api.baseurl(site), category_slug, tag_slug),
-        'members' => Canonicalizer.sort_by_last_name(members || []),
+        'members' => NameCanonicalizer.sort_by_last_name(members || []),
       }
     end
 
