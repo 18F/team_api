@@ -67,13 +67,13 @@ module TeamApi
     end
 
     def test_empty_team
-      Canonicalizer.canonicalize_tag_category site.data['skills']
+      TagCanonicalizer.canonicalize_tag_category site.data['skills']
       refute site.data['skills']
     end
 
     def test_empty_skills
       site.data['skills'] = {}
-      Canonicalizer.canonicalize_tag_category site.data['skills']
+      TagCanonicalizer.canonicalize_tag_category site.data['skills']
       assert_empty site.data['skills']
     end
 
@@ -81,19 +81,19 @@ module TeamApi
       cpp_data = tag_test_data.c_plus_plus
       site.data['skills'] = cpp_data
       expected = { 'c++' => cpp_data['C++'] }
-      Canonicalizer.canonicalize_tag_category site.data['skills']
+      TagCanonicalizer.canonicalize_tag_category site.data['skills']
       assert_equal expected, site.data['skills']
     end
 
     def test_single_skill_multiple_names
       site.data['skills'] = tag_test_data.all_ruby
-      Canonicalizer.canonicalize_tag_category site.data['skills']
+      TagCanonicalizer.canonicalize_tag_category site.data['skills']
       assert_equal tag_test_data.ruby_consolidated, site.data['skills']
     end
 
     def test_multiple_skills
       site.data['skills'] = tag_test_data.all_skills
-      Canonicalizer.canonicalize_tag_category site.data['skills']
+      TagCanonicalizer.canonicalize_tag_category site.data['skills']
       assert_equal tag_test_data.consolidated_skills, site.data['skills']
     end
   end
@@ -116,7 +116,7 @@ module TeamApi
 
     def test_canonicalize_tag_xrefs_empty_input
       empty_member = {}
-      Canonicalizer.canonicalize_tags_for_item(
+      TagCanonicalizer.canonicalize_tags_for_item(
         'skills', tag_test_data.consolidated_skills, empty_member)
       assert_nil empty_member['skills']
     end
@@ -126,7 +126,7 @@ module TeamApi
         { 'name' => 'C++', 'slug' => 'c++', 'self' => SELF_URL + 'c++' },
         { 'name' => 'Ruby', 'slug' => 'ruby', 'self' => SELF_URL + 'ruby' },
       ]
-      Canonicalizer.canonicalize_tags_for_item(
+      TagCanonicalizer.canonicalize_tags_for_item(
         'skills', tag_test_data.consolidated_skills, TEAM_MEMBER)
       assert_equal expected, TEAM_MEMBER['skills']
     end
