@@ -9,7 +9,7 @@ module TeamApi
     def c_plus_plus
       { 'C++' =>
         { 'name' => 'C++', 'slug' => 'c++',
-          'members' => [{ 'name' => 'mbland', 'full_name' => 'Mike Bland' }]
+          'members' => [{ 'username' => 'mbland', 'full_name' => 'Mike Bland' }]
         },
       }
     end
@@ -18,8 +18,8 @@ module TeamApi
       { 'Ruby' =>
         { 'name' => 'Ruby', 'slug' => 'ruby',
           'members' =>
-            [{ 'name' => 'mbland', 'full_name' => 'Mike Bland' },
-             { 'name' => 'arowla', 'full_name' => 'Alison Rowland' },
+            [{ 'username' => 'mbland', 'full_name' => 'Mike Bland' },
+             { 'username' => 'arowla', 'full_name' => 'Alison Rowland' },
             ]
         },
       }
@@ -28,7 +28,7 @@ module TeamApi
     def ruby_lowercase
       { 'ruby' =>
         { 'name' => 'ruby', 'slug' => 'ruby',
-          'members' => [{ 'name' => 'afeld', 'full_name' => 'Aidan Feldman' }]
+          'members' => [{ 'username' => 'afeld', 'full_name' => 'Aidan Feldman' }]
         },
       }
     end
@@ -41,9 +41,9 @@ module TeamApi
       { 'ruby' =>
           { 'name' => 'Ruby', 'slug' => 'ruby',
             'members' =>
-              [{ 'name' => 'mbland', 'full_name' => 'Mike Bland' },
-               { 'name' => 'afeld', 'full_name' => 'Aidan Feldman' },
-               { 'name' => 'arowla', 'full_name' => 'Alison Rowland' },
+              [{ 'username' => 'mbland', 'full_name' => 'Mike Bland' },
+               { 'username' => 'afeld', 'full_name' => 'Aidan Feldman' },
+               { 'username' => 'arowla', 'full_name' => 'Alison Rowland' },
               ]
           },
       }

@@ -15,7 +15,7 @@ module TeamApi
   # The intent is to provide enough cross-reference information to surface in
   # an API without requiring the client to join the data necessary to produce
   # cross-links. For example, instead of surfacing `['mbland']` in a list of
-  # team members, this class will produce `[{'name' => 'mbland', 'full_name'
+  # team members, this class will produce `[{'username' => 'mbland', 'full_name'
   # => 'Mike Bland', 'first_name' => 'Mike', 'last_name' => 'Bland'}]`, which
   # the client can use to more easily sort multiple values and transform into:
   # `<a href="https://hub.18f.gov/team/mbland/">Mike Bland</a>`.

@@ -10,13 +10,13 @@ module TeamApi
 
     TEAM = {
       'mbland' => {
-        'name' => 'mbland', 'full_name' => 'Mike Bland',
+        'username' => 'mbland', 'full_name' => 'Mike Bland',
         'skills' => %w(C++ Python Go Ruby Node) },
       'arowla' => {
-        'name' => 'arowla', 'full_name' => 'Alison Rowland',
+        'username' => 'arowla', 'full_name' => 'Alison Rowland',
         'skills' => %w(Python Ruby Node) },
       'afeld' => {
-        'name' => 'afeld', 'full_name' => 'Aidan Feldman',
+        'username' => 'afeld', 'full_name' => 'Aidan Feldman',
         'skills' => %w(Ruby JavaScript) },
     }
 
@@ -63,7 +63,7 @@ module TeamApi
     end
 
     def member_skills(name)
-      SKILLS.select { |_, d| d['members'].detect { |m| m['name'] == name } }
+      SKILLS.select { |_, d| d['members'].detect { |m| m['username'] == name } }
         .map { |_, xref| xref.select { |key| SKILL_XREF_FIELDS.include? key } }
     end
 

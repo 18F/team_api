@@ -20,9 +20,9 @@ module TeamApi
 
     def add_team_member(member_hash, private: false)
       if private
-        path = "/_team/private/#{member_hash['name']}.md"
+        path = "/_team/private/#{member_hash['username']}.md"
       else
-        path = "/_team/#{member_hash['name']}.md"
+        path = "/_team/#{member_hash['username']}.md"
       end
 
       doc = ::Jekyll::Document.new path, site: @site, collection: @team
@@ -42,30 +42,34 @@ module TeamApi
     end
 
     def test_single_user_index
-      add_team_member 'name' => 'mbland', 'email' => 'michael.bland@gsa.gov'
+      add_team_member 'username' => 'mbland', 'email' => 'michael.bland@gsa.gov'
       assert_equal({ 'michael.bland@gsa.gov' => 'mbland' }, impl.team_by_email)
     end
 
     def test_single_user_with_private_email_index
       add_team_member(
-        'name' => 'mbland', 'private' => { 'email' => 'michael.bland@gsa.gov' })
+        'username' => 'mbland', 'private' => { 'email' => 'michael.bland@gsa.gov' })
       assert_equal({ 'michael.bland@gsa.gov' => 'mbland' }, impl.team_by_email)
     end
 
     def test_single_private_user_index
       add_team_member(
-        { 'name' => 'mbland', 'email' => 'michael.bland@gsa.gov' },
+        { 'username' => 'mbland', 'email' => 'michael.bland@gsa.gov' },
         private: true)
       assert_equal({ 'michael.bland@gsa.gov' => 'mbland' }, impl.team_by_email)
     end
 
     # rubocop:disable MethodLength
     def test_multiple_user_index
-      add_team_member 'name' => 'mbland', 'email' => 'michael.bland@gsa.gov'
+      add_team_member 'username' => 'mbland', 'email' => 'michael.bland@gsa.gov'
       add_team_member(
-        'name' => 'foobar', 'private' => { 'email' => 'foo.bar@gsa.gov' })
+        'username' => 'foobar',
+        'private' => { 'email' => 'foo.bar@gsa.gov' }
+      )
       add_team_member(
-        { 'name' => 'bazquux', 'email' => 'baz.quux@gsa.gov' }, private: true)
+        { 'username' => 'bazquux', 'email' => 'baz.quux@gsa.gov' },
+        private: true
+      )
 
       expected = {
         'michael.bland@gsa.gov' => 'mbland',
@@ -77,9 +81,9 @@ module TeamApi
     # rubocop:enable MethodLength
 
     def test_ignore_users_without_email
-      add_team_member 'name' => 'mbland'
-      add_team_member 'name' => 'foobar', 'private' => {}
-      add_team_member('name' => 'bazquux', private: true)
+      add_team_member 'username' => 'mbland'
+      add_team_member 'username' => 'foobar', 'private' => {}
+      add_team_member('username' => 'bazquux', private: true)
       assert_empty impl.team_by_email
     end
   end

@@ -1,7 +1,7 @@
 - collection: team
   title: Team
   description: Team member info, indexed by username
-  item_id: name
+  item_id: username
   sort_by: last_name
   item_collections:
   - projects

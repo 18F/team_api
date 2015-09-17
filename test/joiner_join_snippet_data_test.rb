@@ -25,7 +25,7 @@ module TeamApi
     end
 
     # rubocop:disable ParameterLists
-    def add_snippet(timestamp, name, full_name, email, public_or_private,
+    def add_snippet(timestamp, username, full_name, email, public_or_private,
       last_week, this_week, expected: true)
       snippets = (@site.data['snippets'][timestamp] ||= [])
       snippets << {
@@ -35,11 +35,11 @@ module TeamApi
         'last-week' => last_week,
         'this-week' => this_week,
       }
-      add_expected_snippet snippets.last, timestamp, name, full_name if expected
+      add_expected_snippet snippets.last, timestamp, username, full_name if expected
     end
 
-    def add_expected_snippet(snippet, timestamp, name, full_name)
-      snippet = snippet.merge 'name' => name, 'full_name' => full_name
+    def add_expected_snippet(snippet, timestamp, username, full_name)
+      snippet = snippet.merge 'username' => username, 'full_name' => full_name
       snippet.delete 'username'
       (@expected[timestamp] ||= []) << snippet
     end
@@ -79,7 +79,7 @@ module TeamApi
     def test_join_all_snippets
       self.team = {
         'mbland' => {
-          'name' => 'mbland', 'full_name' => 'Mike Bland',
+          'username' => 'mbland', 'full_name' => 'Mike Bland',
           'email' => 'michael.bland@gsa.gov'
         },
       }
@@ -105,7 +105,7 @@ module TeamApi
 
       self.team = {
         'mbland' => {
-          'name' => 'mbland',
+          'username' => 'mbland',
           'full_name' => 'Mike Bland',
           'email' => 'michael.bland@gsa.gov',
         },

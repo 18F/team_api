@@ -30,7 +30,7 @@ module TeamApi
     end
 
     def mbland
-      { 'name' => 'mbland', 'location' => 'DCA',
+      { 'username' => 'mbland', 'location' => 'DCA',
         'working-groups' => [
           { 'name' => 'doc' }, { 'name' => 'testing' }, { 'name' => 'wg' }
         ]
@@ -38,7 +38,7 @@ module TeamApi
     end
 
     def nick
-      { 'name' => 'nick', 'location' => 'DCA',
+      { 'username' => 'nick', 'location' => 'DCA',
         'working-groups' => [{ 'name' => 'wg' }],
         'guilds' => [{ 'name' => 'accessibility' }]
       }
@@ -50,7 +50,7 @@ module TeamApi
         team: { 'mbland' => mbland, 'nick' => nick })
       CrossReferencer.xref_locations site.data, team_xref, collection_xrefs
       expected = {
-        'team' => [{ 'name' => 'mbland' }, { 'name' => 'nick' }],
+        'team' => [{ 'username' => 'mbland' }, { 'username' => 'nick' }],
         'working-groups' => [
           { 'name' => 'doc' }, { 'name' => 'testing' }, { 'name' => 'wg' }
         ],
@@ -68,7 +68,7 @@ module TeamApi
         team: { 'mbland' => mbland, 'nick' => nick })
       CrossReferencer.xref_locations site.data, team_xref, collection_xrefs
       expected = {
-        'team' => [{ 'name' => 'nick' }],
+        'team' => [{ 'username' => 'nick' }],
         'working-groups' => [{ 'name' => 'wg' }],
         'guilds' => [{ 'name' => 'accessibility' }],
       }

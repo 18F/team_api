@@ -95,7 +95,7 @@ module TeamApi
     def team_index_by_field(field)
       team.values.map do |member|
         value = member[field]
-        [value, member['name']] unless value.nil?
+        [value, member['username']] unless value.nil?
       end.compact.to_h
     end
 
@@ -112,7 +112,7 @@ module TeamApi
         if member.nil?
           fail UnknownTeamMemberReferenceError, reference unless public_mode
         else
-          member['name']
+          member['username']
         end
       end.compact
     end
@@ -123,7 +123,7 @@ module TeamApi
       team[key] || team[team_by_email[key] || team_by_github[key]]
     end
 
-    SNIPPET_JOIN_FIELDS = %w(name full_name first_name last_name self)
+    SNIPPET_JOIN_FIELDS = %w(username full_name first_name last_name self)
 
     # Joins snippet data into +site.data[+'snippets'] and filters out snippets
     # from team members not appearing in +site.data[+'team'] or

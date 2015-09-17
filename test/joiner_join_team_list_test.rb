@@ -9,9 +9,9 @@ module TeamApi
     def setup
       @site = DummyTestSite.new config: {}
       @site.data['team'] = {
-        'mbland' => { 'name' => 'mbland' },
-        'alison' => { 'name' => 'alison', 'email' => 'alison@18f.gov' },
-        'joshcarp' => { 'name' => 'joshcarp', 'github' => 'jmcarp' },
+        'mbland' => { 'username' => 'mbland' },
+        'alison' => { 'username' => 'alison', 'email' => 'alison@18f.gov' },
+        'joshcarp' => { 'username' => 'joshcarp', 'github' => 'jmcarp' },
       }
     end
 
