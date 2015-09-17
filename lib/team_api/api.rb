@@ -142,10 +142,10 @@ module TeamApi
     end
 
     def generate_snippets_by_user_endpoints
-      snippets_by_user.each do |name, batch|
-        Endpoint.create site, "#{baseurl}/snippets/#{name}", batch
+      snippets_by_user.each do |username, batch|
+        Endpoint.create site, "#{baseurl}/snippets/#{username}", batch
         Endpoint.create(
-          site, "#{baseurl}/snippets/#{name}/latest", [batch.first].to_h)
+          site, "#{baseurl}/snippets/#{username}/latest", [batch.first].to_h)
       end
     end
 
