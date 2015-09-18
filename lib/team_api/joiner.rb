@@ -119,7 +119,7 @@ module TeamApi
 
     def team_member_from_reference(reference)
       key = (reference.instance_of? String) ? reference : (
-        reference['email'] || reference['github'])
+        reference['id'] || reference['email'] || reference['github'])
       team[key] || team[team_by_email[key] || team_by_github[key]]
     end
 

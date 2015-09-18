@@ -12,6 +12,7 @@ module TeamApi
         'mbland' => { 'name' => 'mbland' },
         'alison' => { 'name' => 'alison', 'email' => 'alison@18f.gov' },
         'joshcarp' => { 'name' => 'joshcarp', 'github' => 'jmcarp' },
+        'boone' => { 'name' => 'boone' },
       }
     end
 
@@ -39,9 +40,13 @@ module TeamApi
 
     def test_join_team_containing_hashes
       impl = JoinerImpl.new @site
-      assert_equal(%w(mbland alison joshcarp),
+      assert_equal(%w(mbland alison joshcarp boone),
         impl.join_team_list([
-          'mbland', { 'email' => 'alison@18f.gov' }, { 'github' => 'jmcarp' }]))
+          'mbland',
+          { 'email' => 'alison@18f.gov' },
+          { 'github' => 'jmcarp' },
+          { 'id' => 'boone' },
+        ]))
     end
 
     def test_join_raises_if_identifier_unknown
