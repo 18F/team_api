@@ -33,7 +33,6 @@ module TeamApi
     def impl
       joiner_impl = JoinerImpl.new @site
       joiner_impl.data.merge! joiner_impl.collection_data
-      joiner_impl.promote_or_remove_data
       joiner_impl
     end
 
