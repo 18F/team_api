@@ -144,7 +144,9 @@ module TeamApi
     # from team members not appearing in +site.data[+'team'] or
     # +team_by_email+.
     def join_snippet_data
-      data['snippets'] = data['snippets'].map do |timestamp, snippets|
+      raw_snippets = data['snippets']
+      return if raw_snippets.nil?
+      data['snippets'] = raw_snippets.map do |timestamp, snippets|
         joined = snippets.map { |snippet| join_snippet snippet }
           .compact.each { |i| i.delete 'username' }
         [timestamp, joined] unless joined.empty?

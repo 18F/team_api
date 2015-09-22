@@ -39,14 +39,18 @@ module TeamApi
     end
 
     def add_expected_snippet(snippet, timestamp, name, full_name)
-      snippet = snippet.merge 'name' => name, 'full_name' => full_name
+      snippet = snippet.merge(
+        'name' => name,
+        'full_name' => full_name,
+        'self' => File.join(Api.baseurl(@site), 'team', name),
+      )
       snippet.delete 'username'
       (@expected[timestamp] ||= []) << snippet
     end
 
     def test_empty_snippet_data
       self.team = {}
-      @impl.join_snippet_data
+      Joiner.join_data @site
       assert_empty @site.data['snippets']
     end
 
@@ -58,7 +62,7 @@ module TeamApi
         '', '- Did stuff', '', expected: false)
       add_snippet('20141231', 'mbland', 'Mike Bland', 'michael.bland@gsa.gov',
         'Public', '- Did stuff', '', expected: false)
-      assert_raises(UnknownSnippetUsernameError) { @impl.join_snippet_data }
+      assert_raises(UnknownSnippetUsernameError) { Joiner.join_data @site }
     end
 
     def test_joined_snippets_are_empty_if_no_team_in_public_mode
@@ -71,7 +75,7 @@ module TeamApi
         'Public', '- Did stuff', '', expected: false)
 
       set_public_mode
-      @impl.join_snippet_data
+      Joiner.join_data @site
       assert_empty @site.data['snippets']
     end
 
@@ -89,7 +93,7 @@ module TeamApi
         '', '- Did stuff', '')
       add_snippet('20141231', 'mbland', 'Mike Bland', 'michael.bland@gsa.gov',
         'Public', '- Did stuff', '')
-      @impl.join_snippet_data
+      Joiner.join_data @site
       assert_equal @expected, @site.data['snippets']
     end
     # rubocop:enable MethodLength
@@ -113,7 +117,7 @@ module TeamApi
       add_snippet('20141231', 'mbland', 'Mike Bland', 'mbland',
         'Public', '- Did stuff', '')
 
-      @impl.join_snippet_data
+      Joiner.join_data @site
       assert_equal @expected, @site.data['snippets']
     end
     # rubocop:enable MethodLength

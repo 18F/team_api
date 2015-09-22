@@ -20,22 +20,25 @@ module TeamApi
       collection.docs << doc
     end
 
+    def project_self_link(name)
+      File.join Api.baseurl(@site), 'projects', name
+    end
+
     def test_join_project
-      impl = JoinerImpl.new @site
-      impl.data.merge! impl.collection_data
-      impl.promote_or_remove_data
-      impl.join_project_data
+      Joiner.join_data @site
       assert_equal(
-        { 'msb-usa' => { 'name' => 'MSB-USA', 'status' => 'Hold' } },
+        { 'msb-usa' =>
+          {
+            'name' => 'MSB-USA', 'status' => 'Hold',
+            'self' => project_self_link('msb-usa')
+          },
+        },
         @site.data['projects'])
     end
 
     def test_hide_hold_projects_in_public_mode
       @site.config['public'] = true
-      impl = JoinerImpl.new @site
-      impl.data.merge! impl.collection_data
-      impl.promote_or_remove_data
-      impl.join_project_data
+      Joiner.join_data @site
       assert_empty @site.data['projects']
     end
   end
