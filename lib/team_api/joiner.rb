@@ -20,6 +20,7 @@ module TeamApi
     def self.join_data(site)
       impl = JoinerImpl.new site
       site.data.merge! impl.collection_data
+      impl.create_indexes
       impl.promote_or_remove_data
       impl.join_project_data
       Api.add_self_links site
@@ -81,6 +82,11 @@ module TeamApi
       data['team'] ||= {}
     end
 
+    def create_indexes
+      team_by_email
+      team_by_github
+    end
+
     # Returns an index of team member usernames keyed by email address.
     def team_by_email
       @team_by_email ||= team_index_by_field 'email'
@@ -93,10 +99,19 @@ module TeamApi
 
     # Returns an index of team member usernames keyed by a particular field.
     def team_index_by_field(field)
-      team.values.map do |member|
+      team_members.map do |member|
         value = member[field]
+        value = member['private'][field] if value.nil? && member['private']
         [value, member['name']] unless value.nil?
       end.compact.to_h
+    end
+
+    # Returns the list of team members, with site.data['team']['private']
+    # members included.
+    def team_members
+      @team_members ||= team.map { |key, value| value unless key == 'private' }
+        .compact
+        .concat((team['private'] || {}).values)
     end
 
     # Replaces each member of team_list with a key into the team hash.
@@ -129,7 +144,9 @@ module TeamApi
     # from team members not appearing in +site.data[+'team'] or
     # +team_by_email+.
     def join_snippet_data
-      data['snippets'] = data['snippets'].map do |timestamp, snippets|
+      raw_snippets = data['snippets']
+      return if raw_snippets.nil?
+      data['snippets'] = raw_snippets.map do |timestamp, snippets|
         joined = snippets.map { |snippet| join_snippet snippet }
           .compact.each { |i| i.delete 'username' }
         [timestamp, joined] unless joined.empty?
