@@ -13,7 +13,7 @@ module TeamApi
     def initialize(site)
       @site = site
       @base = site.source
-      @dir = File.join site.config['baseurl'], Api::BASEURL
+      @dir = Api::BASEURL
       @name = 'index.html'
       @data = {}
     end
