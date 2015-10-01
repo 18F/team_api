@@ -84,6 +84,12 @@ module TeamApi
       assert_equal ['/api/'], site.pages.map(&:url)
     end
 
+    def test_generate_public_api_with_no_data
+      site.config['baseurl'] = '/public'
+      Api.generate_api site
+      assert_equal ['/api/'], site.pages.map(&:url)
+    end
+
     def test_generate_api_team
       site.data['team'] = {
         'mbland' => { 'name' => 'mbland', 'full_name' => 'Mike Bland' },
