@@ -75,7 +75,18 @@ module TeamApi
       # convention takes hold, hopefully.
       projects = (data['projects'] ||= {})
       projects.delete_if { |_, p| p['status'] == 'Hold' } if @public_mode
-      projects.values.each { |p| join_team_list p['team'] }
+      projects.values.each do |p| 
+        if p['errors'].nil?
+          p['errors'] = []
+        end
+        join_team_list p['team'], p['errors']
+        if !p['team'].nil?
+          p['team'].compact!
+        end
+        if p['errors'].empty?
+          p.delete('errors')
+        end
+      end
     end
 
     def team
@@ -121,15 +132,19 @@ module TeamApi
     # - Strings that are GitHub usernames
     # - Hashes that contain an 'email' property
     # - Hashes that contain a 'github' property
-    def join_team_list(team_list)
-      (team_list || []).map! do |reference|
+    def join_team_list(team_list, errors)
+      list_team = (team_list || [])
+      list_team.map! do |reference|
         member = team_member_from_reference reference
         if member.nil?
-          fail UnknownTeamMemberReferenceError, reference unless public_mode
-        else
+          errors << 'Unknown Team Member: '.concat(
+            reference['id'] || reference['email'] || reference['github'] || reference) unless public_mode
+          nil unless public_mode
+        else 
           member['name']
         end
-      end.compact
+      end
+      (list_team.compact! || [])
     end
 
     def team_member_from_reference(reference)
