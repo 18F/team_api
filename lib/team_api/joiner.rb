@@ -4,9 +4,6 @@ require_relative 'api'
 require 'hash-joiner'
 
 module TeamApi
-  class UnknownTeamMemberReferenceError < StandardError
-  end
-
   class UnknownSnippetUsernameError < StandardError
   end
 
@@ -75,17 +72,10 @@ module TeamApi
       # convention takes hold, hopefully.
       projects = (data['projects'] ||= {})
       projects.delete_if { |_, p| p['status'] == 'Hold' } if @public_mode
-      projects.values.each do |p| 
-        if p['errors'].nil?
-          p['errors'] = []
-        end
-        join_team_list p['team'], p['errors']
-        if !p['team'].nil?
-          p['team'].compact!
-        end
-        if p['errors'].empty?
-          p.delete('errors')
-        end
+      projects.values.each do |p|
+        errors = p['errors'] || []
+        join_team_list p['team'], errors
+        p['errors'] = errors unless errors.empty?
       end
     end
 
@@ -133,23 +123,24 @@ module TeamApi
     # - Hashes that contain an 'email' property
     # - Hashes that contain a 'github' property
     def join_team_list(team_list, errors)
-      list_team = (team_list || [])
-      list_team.map! do |reference|
+      (team_list || []).map! do |reference|
         member = team_member_from_reference reference
         if member.nil?
-          errors << 'Unknown Team Member: '.concat(
-            reference['id'] || reference['email'] || reference['github'] || reference) unless public_mode
+          errors << 'Unknown Team Member: ' +
+            team_member_key(reference) unless public_mode
           nil unless public_mode
-        else 
+        else
           member['name']
         end
-      end
-      (list_team.compact! || [])
+      end.compact! || []
+    end
+
+    def team_member_key(ref)
+      (ref.is_a? String) ? ref : (ref['id'] || ref['email'] || ref['github'])
     end
 
     def team_member_from_reference(reference)
-      key = (reference.instance_of? String) ? reference : (
-        reference['id'] || reference['email'] || reference['github'])
+      key = team_member_key reference
       team[key] || team[team_by_email[key] || team_by_github[key]]
     end
 

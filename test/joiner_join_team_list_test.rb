@@ -18,8 +18,7 @@ module TeamApi
 
     def test_join_nil_team_list
       impl = JoinerImpl.new @site
-      outlist = nil
-      assert_empty impl.join_team_list nil, nil 
+      assert_empty impl.join_team_list nil, nil
     end
 
     def test_join_empty_team_list
@@ -51,8 +50,7 @@ module TeamApi
         'mbland',
         { 'email' => 'alison@18f.gov' },
         { 'github' => 'jmcarp' },
-        { 'id' => 'boone' },
-      ]
+        { 'id' => 'boone' }]
       outerror = []
       impl.join_team_list outlist, outerror
       assert_equal(%w(mbland alison joshcarp boone), outlist)
@@ -73,7 +71,7 @@ module TeamApi
       impl = JoinerImpl.new @site
       outlist = %w(mbland alison@18f.gov jmcarp foobar)
       outerror = []
-      impl.join_team_list outlist, outerror 
+      impl.join_team_list outlist, outerror
       assert_equal(%w(mbland alison joshcarp), outlist)
       assert_empty outerror
     end
