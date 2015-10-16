@@ -1,7 +1,4 @@
 require_relative 'test_helper'
-require_relative '../lib/team_api'
-
-require 'minitest/autorun'
 
 module TeamApi
   class SortByLastNameTest < ::Minitest::Test

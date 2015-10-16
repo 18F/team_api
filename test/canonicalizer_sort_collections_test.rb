@@ -1,8 +1,4 @@
 require_relative 'test_helper'
-require_relative '../lib/team_api'
-require_relative 'site'
-
-require 'minitest/autorun'
 
 module TeamApi
   class CanonicalizerSortCollectionsTest < ::Minitest::Test

@@ -1,9 +1,4 @@
 require_relative 'test_helper'
-require_relative '../lib/team_api'
-require_relative 'site'
-
-require 'jekyll/document'
-require 'minitest/autorun'
 
 module TeamApi
   class JoinProjectDataTest < ::Minitest::Test
