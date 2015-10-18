@@ -16,18 +16,21 @@ module TeamApi
       }
     end
 
-    def test_join_nil_team_list
+    def impl
       impl = JoinerImpl.new @site
+      impl.init_team_data @site.data['team']
+      impl
+    end
+
+    def test_join_nil_team_list
       assert_empty impl.join_team_list nil, nil
     end
 
     def test_join_empty_team_list
-      impl = JoinerImpl.new @site
       assert_empty impl.join_team_list [], []
     end
 
     def test_join_names_that_do_not_require_translation
-      impl = JoinerImpl.new @site
       outlist = %w(mbland alison joshcarp)
       outerror = []
       impl.join_team_list outlist, outerror
@@ -36,7 +39,6 @@ module TeamApi
     end
 
     def test_join_names_that_require_translation
-      impl = JoinerImpl.new @site
       outlist = %w(mbland alison@18f.gov jmcarp)
       outerror = []
       impl.join_team_list outlist, outerror
@@ -45,7 +47,6 @@ module TeamApi
     end
 
     def test_join_team_containing_hashes
-      impl = JoinerImpl.new @site
       outlist = [
         'mbland',
         { 'email' => 'alison@18f.gov' },
@@ -58,7 +59,6 @@ module TeamApi
     end
 
     def test_join_error_returned_if_identifier_unknown
-      impl = JoinerImpl.new @site
       outlist = %w(mbland alison@18f.gov jmcarp foobar)
       outerror = []
       impl.join_team_list outlist, outerror
@@ -68,7 +68,6 @@ module TeamApi
 
     def test_join_ignores_unknown_identifiers_in_public_mode
       @site.config['public'] = true
-      impl = JoinerImpl.new @site
       outlist = %w(mbland alison@18f.gov jmcarp foobar)
       outerror = []
       impl.join_team_list outlist, outerror

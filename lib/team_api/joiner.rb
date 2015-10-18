@@ -17,23 +17,79 @@ module TeamApi
     def self.join_data(site)
       impl = JoinerImpl.new site
       site.data.merge! impl.collection_data
-      impl.create_indexes
       impl.promote_or_remove_data
+      impl.init_team_data site.data['team']
       impl.join_project_data
       Api.add_self_links site
       impl.join_snippet_data
     end
   end
 
+  class TeamIndexer
+    def initialize(data)
+      @team = data
+    end
+
+    def team
+      @team || {}
+    end
+
+    def create_indexes
+      team_by_email
+      team_by_github
+    end
+
+    # Returns an index of team member usernames keyed by email address.
+    def team_by_email
+      @team_by_email ||= team_index_by_field 'email'
+    end
+
+    # Returns an index of team member usernames keyed by email address.
+    def team_by_github
+      @team_by_github ||= team_index_by_field 'github'
+    end
+
+    # Returns an index of team member usernames keyed by a particular field.
+    def team_index_by_field(field)
+      team_members.map do |member|
+        value = member[field]
+        value = member['private'][field] if value.nil? && member['private']
+        [value, member['name']] unless value.nil?
+      end.compact.to_h
+    end
+
+    # Returns the list of team members, with site.data['team']['private']
+    # members included.
+    def team_members
+      @team_members ||= team.map { |key, value| value unless key == 'private' }
+        .compact
+        .concat((team['private'] || {}).values)
+    end
+
+    def team_member_key(ref)
+      (ref.is_a? String) ? ref : (ref['id'] || ref['email'] || ref['github'])
+    end
+
+    def team_member_from_reference(reference)
+      key = team_member_key reference
+      team[key] || team[team_by_email[key] || team_by_github[key]]
+    end
+  end
+
   # Implements Joiner operations.
   class JoinerImpl
-    attr_reader :site, :data, :public_mode
+    attr_reader :site, :data, :public_mode, :team_indexer
 
     # +site+:: Jekyll site data object
     def initialize(site)
       @site = site
       @data = site.data
       @public_mode = site.config['public']
+    end
+
+    def init_team_data(data)
+      @team_indexer = TeamIndexer.new data
+      team_indexer.create_indexes
     end
 
     def collection_data
@@ -79,42 +135,6 @@ module TeamApi
       end
     end
 
-    def team
-      data['team'] ||= {}
-    end
-
-    def create_indexes
-      team_by_email
-      team_by_github
-    end
-
-    # Returns an index of team member usernames keyed by email address.
-    def team_by_email
-      @team_by_email ||= team_index_by_field 'email'
-    end
-
-    # Returns an index of team member usernames keyed by email address.
-    def team_by_github
-      @team_by_github ||= team_index_by_field 'github'
-    end
-
-    # Returns an index of team member usernames keyed by a particular field.
-    def team_index_by_field(field)
-      team_members.map do |member|
-        value = member[field]
-        value = member['private'][field] if value.nil? && member['private']
-        [value, member['name']] unless value.nil?
-      end.compact.to_h
-    end
-
-    # Returns the list of team members, with site.data['team']['private']
-    # members included.
-    def team_members
-      @team_members ||= team.map { |key, value| value unless key == 'private' }
-        .compact
-        .concat((team['private'] || {}).values)
-    end
-
     # Replaces each member of team_list with a key into the team hash.
     # Values can be:
     # - Strings that are already team hash keys
@@ -124,24 +144,15 @@ module TeamApi
     # - Hashes that contain a 'github' property
     def join_team_list(team_list, errors)
       (team_list || []).map! do |reference|
-        member = team_member_from_reference reference
+        member = @team_indexer.team_member_from_reference reference
         if member.nil?
           errors << 'Unknown Team Member: ' +
-            team_member_key(reference) unless public_mode
+            @team_indexer.team_member_key(reference) unless public_mode
           nil unless public_mode
         else
           member['name']
         end
       end.compact! || []
-    end
-
-    def team_member_key(ref)
-      (ref.is_a? String) ? ref : (ref['id'] || ref['email'] || ref['github'])
-    end
-
-    def team_member_from_reference(reference)
-      key = team_member_key reference
-      team[key] || team[team_by_email[key] || team_by_github[key]]
     end
 
     SNIPPET_JOIN_FIELDS = %w(name full_name first_name last_name self)
@@ -161,7 +172,7 @@ module TeamApi
 
     def join_snippet(snippet)
       username = snippet['username']
-      member = team[username] || team[team_by_email[username]]
+      member = @team_indexer.team_member_from_reference username
 
       if member.nil?
         fail UnknownSnippetUsernameError, username unless public_mode
