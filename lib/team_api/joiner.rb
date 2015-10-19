@@ -147,8 +147,8 @@ module TeamApi
         member = @team_indexer.team_member_from_reference reference
         if member.nil?
           errors << 'Unknown Team Member: ' +
-            @team_indexer.team_member_key(reference) unless public_mode
-          nil unless public_mode
+            @team_indexer.team_member_key(reference)
+          nil
         else
           member['name']
         end

@@ -66,13 +66,13 @@ module TeamApi
       assert_equal 'Unknown Team Member: foobar', outerror[0]
     end
 
-    def test_join_ignores_unknown_identifiers_in_public_mode
+    def test_join_includes_unknown_identifiers_in_public_mode
       @site.config['public'] = true
       outlist = %w(mbland alison@18f.gov jmcarp foobar)
       outerror = []
       impl.join_team_list outlist, outerror
       assert_equal(%w(mbland alison joshcarp), outlist)
-      assert_empty outerror
+      assert_equal 'Unknown Team Member: foobar', outerror[0]
     end
   end
 end
