@@ -144,10 +144,10 @@ module TeamApi
     # - Hashes that contain a 'github' property
     def join_team_list(team_list, errors)
       (team_list || []).map! do |reference|
-        member = @team_indexer.team_member_from_reference reference
+        member = team_indexer.team_member_from_reference reference
         if member.nil?
           errors << 'Unknown Team Member: ' +
-            @team_indexer.team_member_key(reference)
+            team_indexer.team_member_key(reference)
           nil
         else
           member['name']
@@ -172,7 +172,7 @@ module TeamApi
 
     def join_snippet(snippet)
       username = snippet['username']
-      member = @team_indexer.team_member_from_reference username
+      member = team_indexer.team_member_from_reference username
 
       if member.nil?
         fail UnknownSnippetUsernameError, username unless public_mode
