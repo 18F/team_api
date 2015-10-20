@@ -12,52 +12,63 @@ module TeamApi
       }
     end
 
-    def test_join_nil_team_list
+    def impl
       impl = JoinerImpl.new @site
-      assert_empty impl.join_team_list nil
+      impl.init_team_data @site.data['team']
+      impl
+    end
+
+    def test_join_nil_team_list
+      assert_empty impl.join_team_list nil, nil
     end
 
     def test_join_empty_team_list
-      impl = JoinerImpl.new @site
-      assert_empty impl.join_team_list []
+      assert_empty impl.join_team_list [], []
     end
 
     def test_join_names_that_do_not_require_translation
-      impl = JoinerImpl.new @site
-      assert_equal(%w(mbland alison joshcarp),
-        impl.join_team_list(%w(mbland alison joshcarp)))
+      outlist = %w(mbland alison joshcarp)
+      outerror = []
+      impl.join_team_list outlist, outerror
+      assert_equal(%w(mbland alison joshcarp), outlist)
+      assert_empty outerror
     end
 
     def test_join_names_that_require_translation
-      impl = JoinerImpl.new @site
-      assert_equal(%w(mbland alison joshcarp),
-        impl.join_team_list(%w(mbland alison@18f.gov jmcarp)))
+      outlist = %w(mbland alison@18f.gov jmcarp)
+      outerror = []
+      impl.join_team_list outlist, outerror
+      assert_equal(%w(mbland alison joshcarp), outlist)
+      assert_empty outerror
     end
 
     def test_join_team_containing_hashes
-      impl = JoinerImpl.new @site
-      assert_equal(%w(mbland alison joshcarp boone),
-        impl.join_team_list([
-          'mbland',
-          { 'email' => 'alison@18f.gov' },
-          { 'github' => 'jmcarp' },
-          { 'id' => 'boone' },
-        ]))
+      outlist = [
+        'mbland',
+        { 'email' => 'alison@18f.gov' },
+        { 'github' => 'jmcarp' },
+        { 'id' => 'boone' }]
+      outerror = []
+      impl.join_team_list outlist, outerror
+      assert_equal(%w(mbland alison joshcarp boone), outlist)
+      assert_empty outerror
     end
 
-    def test_join_raises_if_identifier_unknown
-      impl = JoinerImpl.new @site
-      error = assert_raises(UnknownTeamMemberReferenceError) do
-        impl.join_team_list(%w(mbland alison@18f.gov jmcarp foobar))
-      end
-      assert_equal 'foobar', error.message
+    def test_join_error_returned_if_identifier_unknown
+      outlist = %w(mbland alison@18f.gov jmcarp foobar)
+      outerror = []
+      impl.join_team_list outlist, outerror
+      assert_equal(%w(mbland alison joshcarp), outlist)
+      assert_equal 'Unknown Team Member: foobar', outerror[0]
     end
 
-    def test_join_ignores_unknown_identifiers_in_public_mode
+    def test_join_includes_unknown_identifiers_in_public_mode
       @site.config['public'] = true
-      impl = JoinerImpl.new @site
-      assert_equal(%w(mbland alison joshcarp),
-        impl.join_team_list(%w(mbland alison@18f.gov jmcarp foobar)))
+      outlist = %w(mbland alison@18f.gov jmcarp foobar)
+      outerror = []
+      impl.join_team_list outlist, outerror
+      assert_equal(%w(mbland alison joshcarp), outlist)
+      assert_equal 'Unknown Team Member: foobar', outerror[0]
     end
   end
 end

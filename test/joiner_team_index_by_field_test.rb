@@ -28,7 +28,8 @@ module TeamApi
     def impl
       joiner_impl = JoinerImpl.new @site
       joiner_impl.data.merge! joiner_impl.collection_data
-      joiner_impl
+      joiner_impl.init_team_data joiner_impl.data['team']
+      joiner_impl.team_indexer
     end
 
     def test_empty_team
