@@ -1,10 +1,12 @@
 require_relative 'endpoint'
 require_relative 'api_impl_snippet_helpers'
+require_relative 'api_impl_error_helpers'
 
 module TeamApi
   class ApiImpl
     attr_accessor :site, :data, :index_endpoints, :baseurl
     include ApiImplSnippetHelpers
+    include ApiImplErrorHelpers
 
     def initialize(site, baseurl)
       @site = site
@@ -58,6 +60,11 @@ module TeamApi
       generate_snippets_by_date_endpoints
       generate_snippets_by_user_endpoints
       generate_snippets_index_summary_endpoint
+    end
+
+    def generate_error_endpoint
+      generate_errors_endpoint
+      generate_errors_index_summary_endpoint
     end
   end
 end
