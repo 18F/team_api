@@ -131,8 +131,14 @@ module TeamApi
       projects.values.each do |p|
         errors = p['errors'] || []
         join_team_list p['team'], errors
-        p['errors'] = errors unless errors.empty?
+        store_project_errors p, errors unless errors.empty?
       end
+    end
+
+    def store_project_errors(project, errors)
+      project['errors'] = errors
+      name = project['github'][0] || project['name']
+      data['errors'][name] |= errors unless data['errors'].nil?
     end
 
     # Replaces each member of team_list with a key into the team hash.

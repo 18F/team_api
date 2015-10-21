@@ -18,6 +18,7 @@ module TeamApi
       generate_collection_endpoints impl
       generate_tag_category_endpoints impl
       impl.generate_snippets_endpoints
+      impl.generate_error_endpoint
       IndexPage.create site, impl.index_endpoints
     end
 
