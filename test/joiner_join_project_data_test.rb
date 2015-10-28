@@ -25,7 +25,8 @@ module TeamApi
         { 'msb-usa' =>
           {
             'name' => 'MSB-USA', 'status' => 'Hold',
-            'self' => project_self_link('msb-usa')
+            'self' => project_self_link('msb-usa'),
+            'categories' => []
           },
         },
         @site.data['projects'])
@@ -35,6 +36,60 @@ module TeamApi
       @site.config['public'] = true
       Joiner.join_data @site
       assert_empty @site.data['projects']
+    end
+
+    def project_data
+      { 'name' => 'test_fm',
+        'full_name' => 'project',
+        'github' => ['test_fm'],
+        'team' => %w(thing1 thing2 thing3),
+        'stack' => %w(thing4 thing5),
+        'owner_type' => 'project',
+      }
+    end
+
+    def project_data_with_errors
+      with_errors = project_data
+      project_data['errors'] = %w(error1 error2)
+      with_errors
+    end
+
+    def error_joiner_impl(errors)
+      @site.data['errors'] = errors
+      JoinerImpl.new @site
+    end
+
+    def test_store_project_data_new_error
+      joiner = error_joiner_impl({})
+      project = project_data
+      joiner.store_project_errors project, ['error!']
+      assert_equal ['error!'], project['errors']
+      assert_equal ['error!'], @site.data['errors']['test_fm']
+    end
+
+    def test_store_project_data_new_error_with_project_errors
+      joiner = error_joiner_impl({})
+      project = project_data_with_errors
+      joiner.store_project_errors project, %w(error1 error2 error!)
+      assert_equal %w(error1 error2 error!), project['errors']
+      assert_equal %w(error1 error2 error!), @site.data['errors']['test_fm']
+    end
+
+    def test_store_project_data_new_error_with_data_errors
+      joiner = error_joiner_impl('test_fm' => ['error!'])
+      project = project_data_with_errors
+      joiner.store_project_errors project, %w(error1 error2)
+      assert_equal %w(error1 error2), project['errors']
+      assert_equal %w(error! error1 error2), @site.data['errors']['test_fm']
+    end
+
+    def test_store_project_data_new_error_with_other_data_errors
+      joiner = error_joiner_impl('other_fm' => ['error!'])
+      project = project_data_with_errors
+      joiner.store_project_errors project, %w(error1 error2)
+      assert_equal %w(error1 error2), project['errors']
+      assert_equal %w(error1 error2), @site.data['errors']['test_fm']
+      assert_equal ['error!'], @site.data['errors']['other_fm']
     end
   end
 end

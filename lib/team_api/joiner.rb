@@ -138,7 +138,7 @@ module TeamApi
     def store_project_errors(project, errors)
       project['errors'] = errors
       name = project['github'][0] || project['name']
-      data['errors'][name] |= errors unless data['errors'].nil?
+      data['errors'][name] = (data['errors'][name] || []) | errors
     end
 
     # Replaces each member of team_list with a key into the team hash.
