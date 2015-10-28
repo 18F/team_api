@@ -42,6 +42,14 @@ Here's a sample bare-bones template you can drop into your prefered layout:
 {% endfor %}
 ```
 
+## Testing
+
+Tests have been set up to be run by `go`. To run the test suite, simply type:
+
+```bash
+$ ./go test
+```
+
 ## Public domain
 
 This project is in the worldwide [public domain](LICENSE.md). As stated in [CONTRIBUTING](CONTRIBUTING.md):
