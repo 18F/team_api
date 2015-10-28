@@ -50,17 +50,17 @@ module TeamApi
 
     def project_data_with_errors
       with_errors = project_data
-      project_data['errors'] = %w(error1 error2)
+      with_errors['errors'] = %w(error1 error2)
       with_errors
     end
 
-    def error_joiner_impl(errors)
+    def error_joiner_impl(errors = {})
       @site.data['errors'] = errors
       JoinerImpl.new @site
     end
 
     def test_store_project_data_new_error
-      joiner = error_joiner_impl({})
+      joiner = error_joiner_impl
       project = project_data
       joiner.store_project_errors project, ['error!']
       assert_equal ['error!'], project['errors']
@@ -68,19 +68,11 @@ module TeamApi
     end
 
     def test_store_project_data_new_error_with_project_errors
-      joiner = error_joiner_impl({})
+      joiner = error_joiner_impl
       project = project_data_with_errors
       joiner.store_project_errors project, %w(error1 error2 error!)
       assert_equal %w(error1 error2 error!), project['errors']
       assert_equal %w(error1 error2 error!), @site.data['errors']['test_fm']
-    end
-
-    def test_store_project_data_new_error_with_data_errors
-      joiner = error_joiner_impl('test_fm' => ['error!'])
-      project = project_data_with_errors
-      joiner.store_project_errors project, %w(error1 error2)
-      assert_equal %w(error1 error2), project['errors']
-      assert_equal %w(error! error1 error2), @site.data['errors']['test_fm']
     end
 
     def test_store_project_data_new_error_with_other_data_errors
