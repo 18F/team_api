@@ -44,7 +44,8 @@ Here's a sample bare-bones template you can drop into your prefered layout:
 
 ## Testing
 
-Tests have been set up to be run by `go`. To run the test suite, simply type:
+Tests have been set up to be run by the `./go` script. To run the test suite, simply type the following
+into the console:
 
 ```bash
 $ ./go test
