@@ -51,6 +51,12 @@ into the console:
 $ ./go test
 ```
 
+ To run the tests and then attempt to build the gem, run the continuous integration command:
+
+```bash
+$ ./go ci_build
+```
+
 ## Public domain
 
 This project is in the worldwide [public domain](LICENSE.md). As stated in [CONTRIBUTING](CONTRIBUTING.md):
