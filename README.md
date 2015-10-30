@@ -51,6 +51,12 @@ into the console:
 $ ./go test
 ```
 
+Once that completes successfully, use the same script to run the Continuous Integration suite:
+
+```bash
+$ ./go ci_build
+```
+
 ## Public domain
 
 This project is in the worldwide [public domain](LICENSE.md). As stated in [CONTRIBUTING](CONTRIBUTING.md):
