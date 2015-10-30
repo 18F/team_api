@@ -9,6 +9,9 @@ module TeamApi
         'alison' => { 'name' => 'alison', 'email' => 'alison@18f.gov' },
         'joshcarp' => { 'name' => 'joshcarp', 'github' => 'jmcarp' },
         'boone' => { 'name' => 'boone' },
+        'private' => { 'mrsecret' => {
+          'name' => 'mrsecret', 'github' => 'secret'
+        } },
       }
     end
 
@@ -34,11 +37,27 @@ module TeamApi
       assert_empty outerror
     end
 
+    def test_join_names_that_do_not_require_translation_with_private
+      outlist = %w(mbland alison joshcarp mrsecret)
+      outerror = []
+      impl.join_team_list outlist, outerror
+      assert_equal(%w(mbland alison joshcarp mrsecret), outlist)
+      assert_empty outerror
+    end
+
     def test_join_names_that_require_translation
       outlist = %w(mbland alison@18f.gov jmcarp)
       outerror = []
       impl.join_team_list outlist, outerror
       assert_equal(%w(mbland alison joshcarp), outlist)
+      assert_empty outerror
+    end
+
+    def test_join_names_that_require_translation_with_private
+      outlist = %w(mbland alison@18f.gov secret jmcarp)
+      outerror = []
+      impl.join_team_list outlist, outerror
+      assert_equal(%w(mbland alison mrsecret joshcarp), outlist)
       assert_empty outerror
     end
 
@@ -69,6 +88,15 @@ module TeamApi
       impl.join_team_list outlist, outerror
       assert_equal(%w(mbland alison joshcarp), outlist)
       assert_equal 'Unknown Team Member: foobar', outerror[0]
+    end
+
+    def test_join_excludes_private_identifiers_in_public_mode
+      @site.config['public'] = true
+      outlist = %w(mbland alison@18f.gov jmcarp mrsecret)
+      outerror = []
+      impl.join_team_list outlist, outerror
+      assert_equal(%w(mbland alison joshcarp), outlist)
+      assert_empty outerror
     end
   end
 end
