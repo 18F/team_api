@@ -44,7 +44,7 @@ module TeamApi
       @team_by_email ||= team_index_by_field 'email'
     end
 
-    # Returns an index of team member usernames keyed by email address.
+    # Returns an index of team member usernames keyed by GitHub username.
     def team_by_github
       @team_by_github ||= team_index_by_field 'github'
     end
@@ -54,6 +54,7 @@ module TeamApi
       team_members.map do |member|
         value = member[field]
         value = member['private'][field] if value.nil? && member['private']
+        value = value.downcase if field == 'github' && !value.nil?
         [value, member['name']] unless value.nil?
       end.compact.to_h
     end
@@ -72,7 +73,7 @@ module TeamApi
 
     def team_member_from_reference(reference)
       key = team_member_key reference
-      team[key] || team[team_by_email[key] || team_by_github[key]]
+      team[key] || team[team_by_email[key] || team_by_github[key.downcase]]
     end
   end
 
