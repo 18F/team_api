@@ -51,7 +51,7 @@ into the console:
 $ ./go test
 ```
 
-Once that completes successfully, use the same script to run the Continuous Integration suite:
+ To run the tests and then attempt to build the gem, run the continuous integration command:
 
 ```bash
 $ ./go ci_build
