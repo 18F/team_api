@@ -54,8 +54,7 @@ module TeamApi
       team_members.map do |member|
         value = member[field]
         value = member['private'][field] if value.nil? && member['private']
-        value = value.downcase if field == 'github' && !value.nil?
-        [value, member['name']] unless value.nil?
+        [value.downcase, member['name'].downcase] unless value.nil?
       end.compact.to_h
     end
 
@@ -72,8 +71,8 @@ module TeamApi
     end
 
     def team_member_from_reference(reference)
-      key = team_member_key reference
-      team[key] || team[team_by_email[key] || team_by_github[key.downcase]]
+      key = team_member_key(reference).downcase
+      team[key] || team[team_by_email[key] || team_by_github[key]]
     end
   end
 
@@ -152,12 +151,13 @@ module TeamApi
     def join_team_list(team_list, errors)
       (team_list || []).map! do |reference|
         member = team_indexer.team_member_from_reference reference
+
         if member.nil?
           errors << 'Unknown Team Member: ' +
             team_indexer.team_member_key(reference)
           nil
         else
-          member['name']
+          member['name'].downcase
         end
       end.compact! || []
     end
