@@ -85,7 +85,7 @@ module TeamApi
     end
 
     def team_member_is_private(reference)
-      key = team_member_key reference
+      key = team_member_key(reference).downcase
       team['private'] && team['private'][key]
     end
   end
