@@ -3,7 +3,7 @@ require_relative 'test_helper'
 module TeamApi
   # rubocop:disable Metrics/ClassLength
   class JoinTeamListTest < ::Minitest::Test
-    # rubocop:disable MethodLength
+    # rubocop:disable Metrics/MethodLength
     def setup
       @site = DummyTestSite.new config: {}
       @site.data['team'] = {
@@ -15,8 +15,12 @@ module TeamApi
         'private' => { 'mrsecret' => {
           'name' => 'mrsecret', 'github' => 'secret'
         } },
+        'carlo' => { 'name' => 'Carlo', 'email' => 'carlo.costino@gsa.gov' },
+        'amanda' => { 'name' => 'amanda',
+                      'email' => 'Amanda.Robinson@gsa.gov' },
       }
     end
+    # rubocop:enable Metrics/MethodLength
 
     # rubocop:enable MethodLength
     def impl
@@ -90,18 +94,22 @@ module TeamApi
       assert_empty outerror
     end
 
+    # rubocop:disable Metrics/MethodLength
     def test_join_team_containing_hashes_with_capitalized_identifiers
       outlist = [
         'mbland',
         { 'email' => 'alison@18f.gov' },
         { 'github' => 'jmcarp' },
         { 'github' => 'LeahBannon' },
-        { 'id' => 'boone' }]
+        { 'id' => 'boone' },
+        { 'id' => 'Carlo' },
+        { 'email' => 'Amanda.Robinson@gsa.gov' }]
       outerror = []
       impl.join_team_list outlist, outerror
-      assert_equal(%w(mbland alison joshcarp leah boone), outlist)
+      assert_equal(%w(mbland alison joshcarp leah boone carlo amanda), outlist)
       assert_empty outerror
     end
+    # rubocop:enable Metrics/MethodLength
 
     def test_join_error_returned_if_identifier_unknown
       outlist = %w(mbland alison@18f.gov jmcarp foobar)
@@ -129,18 +137,18 @@ module TeamApi
     end
 
     def test_join_includes_case_insensitive_identifiers
-      outlist = %w(mbland alison@18f.gov jmcarp leahbannon)
+      outlist = %w(mbland alison@18f.gov jmcarp leahbannon carlo amanda)
       outerror = []
       impl.join_team_list outlist, outerror
-      assert_equal(%w(mbland alison joshcarp leah), outlist)
+      assert_equal(%w(mbland alison joshcarp leah carlo amanda), outlist)
       assert_empty outerror
     end
 
     def test_join_includes_capitalized_identifiers
-      outlist = %w(mbland alison@18f.gov jmcarp LeahBannon)
+      outlist = %w(mbland alison@18f.gov jmcarp LeahBannon Carlo amanda)
       outerror = []
       impl.join_team_list outlist, outerror
-      assert_equal(%w(mbland alison joshcarp leah), outlist)
+      assert_equal(%w(mbland alison joshcarp leah carlo amanda), outlist)
       assert_empty outerror
     end
   end

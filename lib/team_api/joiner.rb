@@ -54,8 +54,7 @@ module TeamApi
       team_members.map do |member|
         value = member[field]
         value = member['private'][field] if value.nil? && member['private']
-        value = value.downcase if field == 'github' && !value.nil?
-        [value, member['name']] unless value.nil?
+        [value.downcase, member['name'].downcase] unless value.nil?
       end.compact.to_h
     end
 
@@ -72,8 +71,8 @@ module TeamApi
     end
 
     def team_member_key(ref)
-      key = team_member_key_by_type ref
-      team_by_email[key] || team_by_github[key.downcase] || key
+      key = team_member_key_by_type(ref).downcase
+      team_by_email[key] || team_by_github[key] || key
     end
 
     def team_member_from_reference(reference)
@@ -169,7 +168,7 @@ module TeamApi
       elsif should_exclude_member(reference)
         nil
       else
-        member['name']
+        member['name'].downcase
       end
     end
 
