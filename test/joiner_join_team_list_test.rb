@@ -9,7 +9,9 @@ module TeamApi
         'alison' => { 'name' => 'alison', 'email' => 'alison@18f.gov' },
         'joshcarp' => { 'name' => 'joshcarp', 'github' => 'jmcarp' },
         'boone' => { 'name' => 'boone' },
-        'leah' => { 'name' => 'leah', 'github' => 'LeahBannon' }
+        'leah' => { 'name' => 'leah', 'github' => 'LeahBannon' },
+        'carlo' => { 'name' => 'Carlo', 'email' => 'carlo.costino@gsa.gov' },
+        'amanda' => { 'name' => 'amanda', 'email' => 'Amanda.Robinson@gsa.gov' }
       }
     end
 
@@ -74,10 +76,12 @@ module TeamApi
         { 'email' => 'alison@18f.gov' },
         { 'github' => 'jmcarp' },
         { 'github' => 'LeahBannon'},
-        { 'id' => 'boone' }]
+        { 'id' => 'boone' },
+        { 'id' => 'Carlo' },
+        { 'email' => 'Amanda.Robinson@gsa.gov' }]
       outerror = []
       impl.join_team_list outlist, outerror
-      assert_equal(%w(mbland alison joshcarp leah boone), outlist)
+      assert_equal(%w(mbland alison joshcarp leah boone carlo amanda), outlist)
       assert_empty outerror
     end
 
@@ -99,18 +103,18 @@ module TeamApi
     end
 
     def test_join_includes_case_insensitive_identifiers
-      outlist = %w(mbland alison@18f.gov jmcarp leahbannon)
+      outlist = %w(mbland alison@18f.gov jmcarp leahbannon carlo amanda)
       outerror = []
       impl.join_team_list outlist, outerror
-      assert_equal(%w(mbland alison joshcarp leah), outlist)
+      assert_equal(%w(mbland alison joshcarp leah carlo amanda), outlist)
       assert_empty outerror
     end
 
     def test_join_includes_capitalized_identifiers
-      outlist = %w(mbland alison@18f.gov jmcarp LeahBannon)
+      outlist = %w(mbland alison@18f.gov jmcarp LeahBannon Carlo amanda)
       outerror = []
       impl.join_team_list outlist, outerror
-      assert_equal(%w(mbland alison joshcarp leah), outlist)
+      assert_equal(%w(mbland alison joshcarp leah carlo amanda), outlist)
       assert_empty outerror
     end
   end
