@@ -17,8 +17,8 @@ module TeamApi
     def self.join_data(site)
       impl = JoinerImpl.new site
       site.data.merge! impl.collection_data
-      impl.promote_or_remove_data
       impl.init_team_data site.data['team']
+      impl.promote_or_remove_data
       impl.join_project_data
       Api.add_self_links site
       impl.join_snippet_data
@@ -27,7 +27,7 @@ module TeamApi
 
   class TeamIndexer
     def initialize(data)
-      @team = data
+      @team = (data || {}).dup
     end
 
     def team
@@ -66,13 +66,27 @@ module TeamApi
         .concat((team['private'] || {}).values)
     end
 
-    def team_member_key(ref)
+    def team_member_key_by_type(ref)
       (ref.is_a? String) ? ref : (ref['id'] || ref['email'] || ref['github'])
     end
 
+    def team_member_key(ref)
+      key = team_member_key_by_type(ref).downcase
+      team_by_email[key] || team_by_github[key] || key
+    end
+
     def team_member_from_reference(reference)
+      key = team_member_key reference
+      if team['private']
+        team[key] || team['private'][key]
+      else
+        team[key]
+      end
+    end
+
+    def team_member_is_private(reference)
       key = team_member_key(reference).downcase
-      team[key] || team[team_by_email[key] || team_by_github[key]]
+      team['private'] && team['private'][key]
     end
   end
 
@@ -141,6 +155,23 @@ module TeamApi
       data['errors'][name] = errors
     end
 
+    def should_exclude_member(reference)
+      @public_mode && team_indexer.team_member_is_private(reference)
+    end
+
+    def get_canonical_reference(reference, errors)
+      member = team_indexer.team_member_from_reference reference
+      if member.nil?
+        errors << 'Unknown Team Member: ' +
+          team_indexer.team_member_key(reference)
+        nil
+      elsif should_exclude_member(reference)
+        nil
+      else
+        member['name'].downcase
+      end
+    end
+
     # Replaces each member of team_list with a key into the team hash.
     # Values can be:
     # - Strings that are already team hash keys
@@ -150,15 +181,7 @@ module TeamApi
     # - Hashes that contain a 'github' property
     def join_team_list(team_list, errors)
       (team_list || []).map! do |reference|
-        member = team_indexer.team_member_from_reference reference
-
-        if member.nil?
-          errors << 'Unknown Team Member: ' +
-            team_indexer.team_member_key(reference)
-          nil
-        else
-          member['name'].downcase
-        end
+        get_canonical_reference reference, errors
       end.compact! || []
     end
 
