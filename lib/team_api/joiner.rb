@@ -71,7 +71,7 @@ module TeamApi
     end
 
     def team_member_from_reference(reference)
-      key = (team_member_key reference).downcase
+      key = team_member_key(reference).downcase
       team[key] || team[team_by_email[key] || team_by_github[key]]
     end
   end
