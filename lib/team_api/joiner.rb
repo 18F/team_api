@@ -64,6 +64,7 @@ module TeamApi
       @team_members ||= team.map { |key, value| value unless key == 'private' }
         .compact
         .concat((team['private'] || {}).values)
+      @team_members
     end
 
     def team_member_key_by_type(ref)
@@ -151,7 +152,8 @@ module TeamApi
 
     def store_project_errors(project, errors)
       project['errors'] = errors
-      name = project['github'][0] || project['name']
+      name = project['github'][0] if project['github']
+      name ||= project['name']
       data['errors'][name] = errors
     end
 

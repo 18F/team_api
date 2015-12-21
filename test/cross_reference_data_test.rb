@@ -63,6 +63,16 @@ module TeamApi
       end
     end
 
+    def test_target_id_is_deprecated_name
+      source, target = create_source_and_target_xrefs(
+        source_data: { 'foo' => { 'name' => 'foo', 'target' => ['oldbar'] } },
+        target_data: { 'bar' => { 'name' => 'bar', 'deprecated_name' => 'oldbar' } })
+
+      source.create_xrefs target, alternate_names: { 'oldbar' => 'bar' }
+      assert_equal [{ 'name' => 'bar' }], source.data['foo']['target']
+      assert_equal [{ 'name' => 'foo' }], target.data['bar']['source']
+    end
+
     def test_xref_source_and_target
       source, target = create_source_and_target_xrefs(
         source_data: { 'foo' => { 'name' => 'foo', 'target' => ['bar'] } },

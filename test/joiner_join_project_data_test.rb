@@ -67,6 +67,15 @@ module TeamApi
       assert_equal ['error!'], @site.data['errors']['test_fm']
     end
 
+    def test_store_project_data_no_github
+      joiner = error_joiner_impl
+      project = project_data
+      project.delete 'github'
+      joiner.store_project_errors project, []
+      assert_empty project['errors']
+      assert_empty @site.data['errors']['test_fm']
+    end
+
     def test_store_project_data_new_error_with_project_errors
       joiner = error_joiner_impl
       project = project_data_with_errors

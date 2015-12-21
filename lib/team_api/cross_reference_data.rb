@@ -55,27 +55,32 @@ module TeamApi
     # @param source_to_target_field [String] if specified, the field from this
     #   collection's objects that contain identifiers of objects stored within
     #   target; if not specified, target.collection_name will be used instead
-    def create_xrefs(target, source_to_target_field: nil)
+    def create_xrefs(target, source_to_target_field: nil, alternate_names: nil)
+      item_xref_fields << 'deprecated_name'
+
       target_collection_field = source_to_target_field || target.collection_name
       data.values.each do |source|
-        create_xrefs_for_source source, target_collection_field, target
+        create_xrefs_for_source source, target_collection_field, target, alternate_names
       end
       target.data.values.each { |item| (item[collection_name] || []).uniq! }
     end
 
     private
 
-    def create_xrefs_for_source(source, target_collection_field, target)
+    def create_xrefs_for_source(source, target_collection_field, target, alternate_names)
       source_xref = item_to_xref source
-      target_ids = filter_target_ids target, source, target_collection_field
+      target_ids = filter_target_ids target, source, target_collection_field, alternate_names
       link_source_to_targets source_xref, target_ids, target
       source[target_collection_field] = target_xrefs target, target_ids
     end
 
-    def filter_target_ids(target_xref, source_item, target_collection_field)
+    def filter_target_ids(target_xref, source_item, target_collection_field, alternate_names)
       (source_item[target_collection_field] || []).map do |target_id|
         if target_xref.data.member? target_id
           target_id
+        elsif alternate_names && alternate_names[target_id] &&
+            (target_xref.data.member? alternate_names[target_id])
+          alternate_names[target_id]
         elsif !public_mode
           fail UnknownCrossReferenceTargetId, unknown_cross_reference_msg(
             collection_name, source_item, target_collection_field,
