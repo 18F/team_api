@@ -151,7 +151,8 @@ module TeamApi
 
     def store_project_errors(project, errors)
       project['errors'] = errors
-      name = project['github'][0] || project['name']
+      name = project['github'][0] if project['github']
+      name ||= project['name']
       data['errors'][name] = errors
     end
 

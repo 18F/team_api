@@ -23,9 +23,13 @@ module TeamApi
       team, projects, working_groups, guilds = create_xref_data site
 
       projects.create_xrefs team
+      name_xrefs = create_name_xrefs team
+
       [working_groups, guilds].each do |grouplet|
-        grouplet.create_xrefs team, source_to_target_field: 'leads'
-        grouplet.create_xrefs team, source_to_target_field: 'members'
+        grouplet.create_xrefs team, source_to_target_field: 'leads',
+            alternate_names: name_xrefs
+        grouplet.create_xrefs team, source_to_target_field: 'members',
+            alternate_names: name_xrefs
       end
 
       xref_tags_and_team_members site, TAG_CATEGORIES, team
@@ -40,6 +44,15 @@ module TeamApi
       ]
     end
     private_class_method :create_xref_data
+
+    def self.create_name_xrefs(team)
+      name_xrefs = {}
+      team.data.each do |member|
+        name_xrefs[member.last['deprecated_name']] =
+            member.last['name'] if member.last['deprecated_name']
+      end
+      name_xrefs
+    end
 
     def self.xref_tags_and_team_members(site, tag_categories, team_xref)
       team = (site.data['team'] || {})

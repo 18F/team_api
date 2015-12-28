@@ -12,6 +12,7 @@ module TeamApi
       doc = ::Jekyll::Document.new(
         '/_projects/msb-usa.md', site: @site, collection: collection)
       doc.data.merge! 'name' => 'MSB-USA', 'status' => 'Hold'
+      doc.data.delete 'draft'
       collection.docs << doc
     end
 
@@ -65,6 +66,15 @@ module TeamApi
       joiner.store_project_errors project, ['error!']
       assert_equal ['error!'], project['errors']
       assert_equal ['error!'], @site.data['errors']['test_fm']
+    end
+
+    def test_store_project_data_no_github
+      joiner = error_joiner_impl
+      project = project_data
+      project.delete 'github'
+      joiner.store_project_errors project, []
+      assert_empty project['errors']
+      assert_empty @site.data['errors']['test_fm']
     end
 
     def test_store_project_data_new_error_with_project_errors
