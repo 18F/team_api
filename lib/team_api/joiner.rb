@@ -64,7 +64,6 @@ module TeamApi
       @team_members ||= team.map { |key, value| value unless key == 'private' }
         .compact
         .concat((team['private'] || {}).values)
-      @team_members
     end
 
     def team_member_key_by_type(ref)
