@@ -12,6 +12,7 @@ module TeamApi
       doc = ::Jekyll::Document.new(
         '/_projects/msb-usa.md', site: @site, collection: collection)
       doc.data.merge! 'name' => 'MSB-USA', 'status' => 'Hold'
+      doc.data.delete 'draft'
       collection.docs << doc
     end
 
