@@ -17,7 +17,7 @@ module TeamApi
       content = content[end_front_matter..-1]
       front_matter = SafeYAML.load front_matter, safe: true
       yield front_matter
-      File.write filename, "#{front_matter.to_yaml}#{content}"
+      File.write filename.downcase, "#{front_matter.to_yaml}#{content}"
     end
 
     def self.front_matter_end_index(filename, content)
