@@ -1,3 +1,5 @@
+/team_api.iml
+/.idea
 .*.swp
 *.gem
 /coverage/
