@@ -1,6 +1,7 @@
 require_relative 'endpoint'
 require_relative 'api_impl_snippet_helpers'
 require_relative 'api_impl_error_helpers'
+require 'json'
 
 module TeamApi
   class ApiImpl
@@ -30,6 +31,15 @@ module TeamApi
       index_endpoints << {
         'endpoint' => endpoint, 'title' => title, 'description' => description
       }
+    end
+
+    def generate_schema_endpoint(schema_file_location)
+      return if schema_file_location.nil? || schema_file_location.empty?
+      file = File.read schema_file_location
+      items = JSON.parse file
+      generate_index_endpoint('schemas', 'Schemas',
+        'Schema used to parse .about.yml files',
+        items)
     end
 
     def generate_tag_category_endpoint(category)

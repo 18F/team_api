@@ -17,6 +17,7 @@ module TeamApi
       impl = ApiImpl.new site, BASEURL
       generate_collection_endpoints impl
       generate_tag_category_endpoints impl
+      impl.generate_schema_endpoint team_api_schema_location
       impl.generate_snippets_endpoints
       impl.generate_error_endpoint
       IndexPage.create site, impl.index_endpoints
@@ -58,5 +59,12 @@ module TeamApi
     end
 
     private_class_method :generate_tag_category_endpoints
+
+    def self.team_api_schema_location
+      about_yml = Gem::Specification.find_by_name 'about_yml'
+      "#{about_yml.gem_dir}/lib/about_yml/schema.json"
+    end
+
+    private_class_method :team_api_schema_location
   end
 end

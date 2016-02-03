@@ -22,6 +22,7 @@ module TeamApi
     def expected_endpoints
       [
         '/api/',
+        '/api/schemas/api.json',
         '/api/errors/api.json',
         '/api/team/api.json',
         '/api/team/mbland/api.json',

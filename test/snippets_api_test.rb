@@ -22,6 +22,7 @@ module TeamApi
     def expected_endpoints
       [
         '/api/',
+        '/api/schemas/api.json',
         '/api/snippets/api.json',
         '/api/snippets/20150629/api.json',
         '/api/snippets/20150706/api.json',
