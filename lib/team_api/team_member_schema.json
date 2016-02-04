@@ -1,0 +1,84 @@
+{
+  "team": {
+    "title": "team - [team.member].yml files",
+    "description": "Team member metadata",
+    "$schema": "http://json-schema.org/draft-04/hyper-schema",
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string",
+        "description": "Unique name for the team member, derived from their GSA email address. Must match the file basename."
+      },
+      "deprecated_name": {
+        "type": "string",
+        "description": "Previous value for the `name` field (and the previous file name)"
+      },
+      "full_name": {
+        "type": "string",
+        "description": "Full proper name of the team member"
+      },
+      "first_name": {
+        "type": "string",
+        "description": "Team member's first name"
+      },
+      "last_name": {
+        "type": "string",
+        "description": "Team member's last name"
+      },
+      "github": {
+        "type": "string",
+        "description": "Team member's GitHub username"
+      },
+      "email": {
+        "type": "string",
+        "description": "Team member's GSA email address"
+      },
+      "location": {
+        "type": "string",
+        "description": "Team member's location"
+      },
+      "slack": {
+        "type": "string",
+        "description": "Team member's Slack username"
+      },
+      "resume": {
+        "type": "string",
+        "description": "URL for the team member's resume"
+      },
+      "okrs": {
+        "type": "string",
+        "description": "URL for the team member's OKRs"
+      },
+      "start_date": {
+        "type": "date",
+        "description": "Date on which team member started at 18F"
+      },
+      "end_date": {
+        "type": "date",
+        "description": "Date on which team member left or is expected to leave"
+      },
+      "skills": {
+        "type": "array",
+        "description": "Skills the team member can contribute to projects",
+        "items": {
+          "type": "string"
+        },
+        "uniqueItems": true
+      },
+      "interests": {
+        "type": "array",
+        "description": "Brief descriptions of team member's interests",
+        "items": {
+          "type": "string"
+        },
+        "uniqueItems": true
+      },
+    },
+    "required": [
+      "name",
+      "full_name",
+      "email",
+      "location"
+    ]
+  }
+}
