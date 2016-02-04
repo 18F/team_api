@@ -62,7 +62,11 @@ module TeamApi
 
     def self.team_api_schema_location
       about_yml = Gem::Specification.find_by_name 'about_yml'
-      "#{about_yml.gem_dir}/lib/about_yml/schema.json"
+      if about_yml.nil?
+        nil
+      else
+        "#{about_yml.gem_dir}/lib/about_yml/schema.json"
+      end
     end
 
     private_class_method :team_api_schema_location
