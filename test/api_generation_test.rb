@@ -25,7 +25,8 @@ module TeamApi
 
     def expected_urls(collection, elements)
       element_urls = elements.map { |e| element_url collection, e }
-      ['/api/', collection_url(collection)].concat element_urls
+      ['/api/schemas/api.json', '/api/',
+       collection_url(collection)].concat element_urls
     end
 
     def assert_collection_and_element_endpoints_match(
@@ -55,7 +56,7 @@ module TeamApi
     def test_generate_api_with_no_data
       Api.generate_api site
 
-      assert_equal ['/api/'], site.pages.map(&:url)
+      assert_equal ['/api/schemas/api.json', '/api/'], site.pages.map(&:url)
     end
 
     def test_generate_public_api_with_no_data
@@ -63,7 +64,7 @@ module TeamApi
 
       Api.generate_api site
 
-      assert_equal ['/api/'], site.pages.map(&:url)
+      assert_equal ['/api/schemas/api.json', '/api/'], site.pages.map(&:url)
     end
 
     def test_generate_api_team
