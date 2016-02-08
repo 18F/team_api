@@ -19,7 +19,7 @@ module TeamApi
     # Returns a canonicalized, URL-friendly substitute for an arbitrary string.
     # +s+:: string to canonicalize
     def self.canonicalize(s)
-      s.downcase.gsub(/\s+/, '-')
+      s.downcase.gsub(/\s+/, '-') unless s.nil?
     end
 
     def self.team_xrefs(team, usernames)

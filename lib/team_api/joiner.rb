@@ -16,7 +16,7 @@ module TeamApi
     # +site+:: Jekyll site data object
     def self.join_data(site)
       impl = JoinerImpl.new site
-      site.data.merge! impl.collection_data
+      impl.restructure_team_data!
       impl.init_team_data site.data['team']
       impl.promote_or_remove_data
       impl.join_project_data
@@ -37,6 +37,7 @@ module TeamApi
     def create_indexes
       team_by_email
       team_by_github
+      team_by_deprecated_name
     end
 
     # Returns an index of team member usernames keyed by email address.
@@ -47,6 +48,11 @@ module TeamApi
     # Returns an index of team member usernames keyed by GitHub username.
     def team_by_github
       @team_by_github ||= team_index_by_field 'github'
+    end
+
+    # Returns an index of team member usernames keyed by deprecated names.
+    def team_by_deprecated_name
+      @team_by_deprecated_name ||= team_index_by_field 'deprecated_name'
     end
 
     # Returns an index of team member usernames keyed by a particular field.
@@ -67,16 +73,17 @@ module TeamApi
     end
 
     def team_member_key_by_type(ref)
-      (ref.is_a? String) ? ref : (ref['id'] || ref['email'] || ref['github'])
+      (ref.is_a? String) ? ref : (ref['id'] || ref['email'] || ref['github'] || ref['deprecated_name'])
     end
 
     def team_member_key(ref)
       key = team_member_key_by_type(ref).downcase
-      team_by_email[key] || team_by_github[key] || key
+      team_by_email[key] || team_by_github[key] || team_by_deprecated_name[key] || key
     end
 
     def team_member_from_reference(reference)
       key = team_member_key reference
+
       if team['private']
         team[key] || team['private'][key]
       else
@@ -101,35 +108,20 @@ module TeamApi
       @public_mode = site.config['public']
     end
 
+    # Jekyll seems to be removing non-alpha characters from the team member
+    # names, causing the TeamIndexer to not be able to find any team member
+    # matches. This changes all of the team member keys back to what we expect.
+    def restructure_team_data!
+      if !site.data['team'].nil? && site.data['team'].respond_to?(:keys)
+        site.data['team'].keys.each do |key|
+          site.data['team'][site.data['team'][key]['name']] = site.data['team'].delete(key)
+        end
+      end
+    end
+
     def init_team_data(data)
       @team_indexer = TeamIndexer.new data
       team_indexer.create_indexes
-    end
-
-    def collection_data
-      @collection_data ||= site.collections.map do |data_class, collection|
-        groups = groups collection
-        result = (groups[:public] || {})
-        result.merge!('private' => groups[:private]) if groups[:private]
-        [data_class, result] unless result.empty?
-      end.compact.to_h
-    end
-
-    def groups(collection)
-      collection.docs
-        .select { |doc| doc.data['published'] != false }
-        .group_by { |doc| doc_visibility doc }
-        .map { |group, docs| [group, docs_data(docs)] }
-        .to_h
-    end
-
-    def doc_visibility(doc)
-      parent = File.basename File.dirname(doc.cleaned_relative_path)
-      (parent == 'private') ? :private : :public
-    end
-
-    def docs_data(docs)
-      docs.map { |doc| [doc.basename_without_ext, doc.data] }.to_h
     end
 
     def promote_or_remove_data
@@ -162,6 +154,7 @@ module TeamApi
 
     def get_canonical_reference(reference, errors)
       member = team_indexer.team_member_from_reference reference
+
       if member.nil?
         errors << 'Unknown Team Member: ' +
           team_indexer.team_member_key(reference)
