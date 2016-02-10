@@ -10,7 +10,7 @@ module TeamApi
       'permalink' => 'pretty',
       'baseurl' => '',
       'url' => 'https://team-api.18f.gov',
-      'api_index_layout' => 'api_index.html',
+      'api_index_layout' => 'api_index.html'
     }
 
     def initialize(config: {})

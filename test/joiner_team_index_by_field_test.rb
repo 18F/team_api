@@ -6,30 +6,52 @@ module TeamApi
   class TeamByFieldTest < ::Minitest::Test
     def setup
       config = {
-        'source' => '/',
-        'collections' => { 'team' => { 'output' => true } },
+        'source' => '/'
       }
+
       @site = DummyTestSite.new config: config
-      @team = @site.collections['team']
-    end
+      @site.data = {}
 
-    def add_team_member(member_hash, private: false)
-      if private
-        path = "/_team/private/#{member_hash['name']}.md"
-      else
-        path = "/_team/#{member_hash['name']}.md"
-      end
-
-      doc = ::Jekyll::Document.new path, site: @site, collection: @team
-      doc.data.merge! member_hash
-      @team.docs << doc
+      @team_data = {
+        'team' => {
+          'foobar' => {
+            'name' => 'foo.bar',
+            'deprecated_name' => 'fbar',
+            'github' => 'foobar',
+            'private' => {
+              'email' => 'foo.bar@example.com'
+            }
+          },
+          'fizzbuzz' => {
+            'name' => 'fizz.buzz',
+            'github' => 'fizzbuzz',
+            'private' => {
+              'email' => 'fizz.buzz@example.com'
+            }
+          },
+          'bazblip' => {
+            'name' => 'baz.blip'
+          }
+        }
+      }
     end
 
     def impl
       joiner_impl = JoinerImpl.new @site
-      joiner_impl.data.merge! joiner_impl.collection_data
+      joiner_impl.restructure_team_data!
       joiner_impl.init_team_data joiner_impl.data['team']
       joiner_impl.team_indexer
+    end
+
+    def merge_team_data!
+      @site.data = {}
+      @site.data.merge!(@team_data)
+    end
+
+    def test_team_data_restructured_properly
+      merge_team_data!
+      impl
+      assert_equal(['foo.bar', 'fizz.buzz','baz.blip'].sort, @site.data['team'].keys.sort)
     end
 
     def test_empty_team
@@ -37,45 +59,47 @@ module TeamApi
     end
 
     def test_single_user_index
-      add_team_member 'name' => 'mbland', 'email' => 'michael.bland@gsa.gov'
-      assert_equal({ 'michael.bland@gsa.gov' => 'mbland' }, impl.team_by_email)
+      merge_team_data!
+      assert_equal(@site.data['team']['foobar'], impl.team_member_from_reference('foo.bar'))
     end
 
-    def test_single_user_with_private_email_index
-      add_team_member(
-        'name' => 'mbland', 'private' => { 'email' => 'michael.bland@gsa.gov' })
-      assert_equal({ 'michael.bland@gsa.gov' => 'mbland' }, impl.team_by_email)
+    def test_single_user_with_github_index
+      merge_team_data!
+      assert_equal(@site.data['team']['foobar'], impl.team_member_from_reference('foobar'))
+    end
+
+    def test_single_user_with_deprecated_name_index
+      merge_team_data!
+      assert_equal(@site.data['team']['foobar'], impl.team_member_from_reference('fbar'))
     end
 
     def test_single_private_user_index
-      add_team_member(
-        { 'name' => 'mbland', 'email' => 'michael.bland@gsa.gov' },
-        private: true)
-      assert_equal({ 'michael.bland@gsa.gov' => 'mbland' }, impl.team_by_email)
+      merge_team_data!
+      assert_equal(@site.data['team']['foobar'], impl.team_member_from_reference('foo.bar@example.com'))
     end
 
     # rubocop:disable MethodLength
     def test_multiple_user_index
-      add_team_member 'name' => 'mbland', 'email' => 'michael.bland@gsa.gov'
-      add_team_member(
-        'name' => 'foobar', 'private' => { 'email' => 'foo.bar@gsa.gov' })
-      add_team_member(
-        { 'name' => 'bazquux', 'email' => 'baz.quux@gsa.gov' }, private: true)
+      merge_team_data!
 
       expected = {
-        'michael.bland@gsa.gov' => 'mbland',
-        'foo.bar@gsa.gov' => 'foobar',
-        'baz.quux@gsa.gov' => 'bazquux',
+        'foo.bar@example.com' => 'foo.bar',
+        'fizz.buzz@example.com' => 'fizz.buzz'
       }
+
       assert_equal expected, impl.team_by_email
     end
     # rubocop:enable MethodLength
 
     def test_ignore_users_without_email
-      add_team_member 'name' => 'mbland'
-      add_team_member 'name' => 'foobar', 'private' => {}
-      add_team_member('name' => 'bazquux', private: true)
-      assert_empty impl.team_by_email
+      merge_team_data!
+
+      expected = {
+        'foo.bar@example.com' => 'foo.bar',
+        'fizz.buzz@example.com' => 'fizz.buzz'
+      }
+
+      assert_equal expected, impl.team_by_email
     end
   end
 end

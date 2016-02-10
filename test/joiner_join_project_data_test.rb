@@ -4,16 +4,17 @@ module TeamApi
   class JoinProjectDataTest < ::Minitest::Test
     def setup
       config = {
-        'source' => '/',
-        'collections' => { 'projects' => { 'output' => true } },
+        'source' => '/'
       }
       @site = DummyTestSite.new config: config
-      collection = @site.collections['projects']
-      doc = ::Jekyll::Document.new(
-        '/_projects/msb-usa.md', site: @site, collection: collection)
-      doc.data.merge! 'name' => 'MSB-USA', 'status' => 'Hold'
-      doc.data.delete 'draft'
-      collection.docs << doc
+      @site.data = {
+        'projects' => {
+          'msb-usa' => {
+            'name' => 'MSB-USA',
+            'status' => 'Hold'
+          }
+        }
+      }
     end
 
     def project_self_link(name)
@@ -26,8 +27,7 @@ module TeamApi
         { 'msb-usa' =>
           {
             'name' => 'MSB-USA', 'status' => 'Hold',
-            'self' => project_self_link('msb-usa'),
-            'categories' => []
+            'self' => project_self_link('msb-usa')
           },
         },
         @site.data['projects'])
