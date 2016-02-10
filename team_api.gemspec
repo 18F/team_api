@@ -6,8 +6,8 @@ require 'team_api/version'
 Gem::Specification.new do |s|
   s.name          = 'team_api'
   s.version       = TeamApi::VERSION
-  s.authors       = ['Mike Bland']
-  s.email         = ['michael.bland@gsa.gov']
+  s.authors       = ['Mike Bland', 'Amanda Robinson', 'Carlo Costino']
+  s.email         = ['michael.bland@gsa.gov', 'amanda.robinson@gsa.gov', 'carlo.costino@gsa.gov']
   s.summary       = 'Compiles team information and publishes it as a JSON API'
   s.description   = (
     'Compiles information about team members, projects, etc. and exposes it ' \
