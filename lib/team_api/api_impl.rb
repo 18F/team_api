@@ -34,11 +34,20 @@ module TeamApi
     end
 
     def generate_schema_endpoint(schema_file_location)
-      return if schema_file_location.nil? || schema_file_location.empty?
-      file = File.read schema_file_location
-      items = JSON.parse file
+      items = {}
+      unless schema_file_location.nil? || schema_file_location.empty?
+        about_yml_schema_file = File.read schema_file_location
+        items = items.merge({ 'about_yml' => JSON.parse(about_yml_schema_file) })
+      end
+
+      local_schema_files.each do |filename|
+        file = File.join File.dirname(__FILE__), filename
+        schema = JSON.parse(File.read(file))
+        items = items.merge schema
+      end
+
       generate_index_endpoint('schemas', 'Schemas',
-        'Schema used to parse .about.yml files',
+        'Schemas used to parse .about.yml and team member .yml files',
         items)
     end
 
@@ -63,6 +72,13 @@ module TeamApi
         url = "#{baseurl}/#{collection_name}/#{identifier}"
         Endpoint.create site, url, value
       end
+    end
+
+    def local_schema_files
+      %w(
+        snippet_schema.json
+        team_member_schema.json
+      )
     end
 
     def generate_snippets_endpoints

@@ -1,0 +1,37 @@
+{
+  "snippet": {
+    "title": "snippet files",
+    "description": "Guild metadata",
+    "$schema": "http://json-schema.org/draft-04/hyper-schema",
+    "type": "array",
+    "items": {
+      "type": "object",
+      "properties": {
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp of snippet"
+        },
+        "username": {
+          "type": "string",
+          "description": "Email address of user who created snippet"
+        },
+        "full_name": {
+          "type": "string",
+          "description": "Full name of user who created snippet"
+        },
+        "last-week": {
+          "type": "string",
+          "description": "Full text of snippet"
+        },
+        "markdown": {
+          "type": "boolean",
+          "description": "Indicates whether text is formatted in Markdown"
+        },
+        "public": {
+          "type": "boolean",
+          "description": "Indicates whether snipped is public"
+        }
+      }
+    }
+  }
+}
