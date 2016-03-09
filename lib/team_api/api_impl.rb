@@ -34,9 +34,11 @@ module TeamApi
     end
 
     def generate_schema_endpoint(schema_file_location)
-      # return if schema_file_location.nil? || schema_file_location.empty?
-      about_yml_schema_file = File.read schema_file_location
-      items = { 'about_yml' => JSON.parse(about_yml_schema_file) }
+      items = {}
+      unless schema_file_location.nil? || schema_file_location.empty?
+        about_yml_schema_file = File.read schema_file_location
+        items = items.merge({ 'about_yml' => JSON.parse(about_yml_schema_file) })
+      end
 
       local_schema_files.each do |filename|
         file = File.join File.dirname(__FILE__), filename
