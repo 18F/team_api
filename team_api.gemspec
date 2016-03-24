@@ -26,6 +26,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'weekly_snippets'
   s.add_runtime_dependency 'hash-joiner'
   s.add_runtime_dependency 'lambda_map_reduce'
+  s.add_runtime_dependency 'activemodel'
   s.add_development_dependency 'go_script', '~> 0.1'
   s.add_development_dependency 'rake', '~> 10.4'
   s.add_development_dependency 'minitest'
